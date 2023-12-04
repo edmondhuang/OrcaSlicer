@@ -3476,7 +3476,6 @@ def = this->add("filament_loading_speed", coFloats);
     def->label = L("Single Extruder Multi Material");
     def->tooltip = L("Use single nozzle to print multi filament");
     def->mode = comAdvanced;
-    def->readonly = true;
     def->set_default_value(new ConfigOptionBool(true));
 
     def = this->add("manual_filament_change", coBool);
@@ -5322,7 +5321,7 @@ void PrintConfigDef::handle_legacy(t_config_option_key &opt_key, std::string &va
             opt_key = "wall_sequence";
         }
     } else if(opt_key == "single_extruder_multi_material") {
-        value = "1";
+        value = "0";
     }
     else if (opt_key == "sparse_infill_anchor") {
         opt_key = "infill_anchor";

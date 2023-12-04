@@ -1192,7 +1192,7 @@ void GCodeProcessor::apply_config(const DynamicPrintConfig& config)
     }
 
     const ConfigOptionPoints* extruder_offset = config.option<ConfigOptionPoints>("extruder_offset");
-    const ConfigOptionBool* single_extruder_multi_material = config.option<ConfigOptionBool>("single_extruder_multi_material");
+    const ConfigOptionBool* single_extruder_multi_material = 0;
     if (extruder_offset != nullptr) {
         //BBS: for single extruder multi material, only use the offset of first extruder
         if (single_extruder_multi_material != nullptr && single_extruder_multi_material->getBool()) {

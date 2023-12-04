@@ -116,7 +116,7 @@
     "40"
   ],
   "silent_mode": "0",
-  "single_extruder_multi_material": "1",
+  "single_extruder_multi_material": "0",
   "change_filament_gcode": "",
   "machine_pause_gcode": "M25 ;pause print",
   "wipe": [
