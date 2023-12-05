@@ -118,7 +118,7 @@ std::string GCodeWriter::set_temperature(unsigned int temperature, bool wait, in
     }
     gcode << temperature;
     bool multiple_tools = this->multiple_extruders && ! m_single_extruder_multi_material;
-    if (tool != -1 && (multiple_tools || FLAVOR_IS(gcfMakerWare) || FLAVOR_IS(gcfSailfish)) ) {
+    if (tool != -1 && (FLAVOR_IS(gcfMakerWare) || FLAVOR_IS(gcfSailfish)) ) {
         if (FLAVOR_IS(gcfRepRapFirmware)) {
             gcode << " P" << tool;
         } else {
