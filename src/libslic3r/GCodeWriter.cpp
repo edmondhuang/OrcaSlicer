@@ -103,6 +103,8 @@ std::string GCodeWriter::set_temperature(unsigned int temperature, bool wait, in
     } else {
         if (FLAVOR_IS(gcfRepRapFirmware)) { // M104 is deprecated on RepRapFirmware
             code = "G10";
+        } else if (FLAVOR_IS(gcfKlipper)) {
+            code = "SET_TOOL_TEMPERATURE"
         } else {
             code = "M104";
         }
@@ -121,6 +123,8 @@ std::string GCodeWriter::set_temperature(unsigned int temperature, bool wait, in
     if (tool != -1 && (FLAVOR_IS(gcfMakerWare) || FLAVOR_IS(gcfSailfish)) ) {
         if (FLAVOR_IS(gcfRepRapFirmware)) {
             gcode << " P" << tool;
+        } else if (FLAVOR_IS(gcfKlipper)) {
+            gcode << " TOOL=" << tool << " CHNG_STATE=2";
         } else {
             gcode << " T" << tool;
         }
