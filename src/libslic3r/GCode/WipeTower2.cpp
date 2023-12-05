@@ -734,7 +734,7 @@ std::vector<WipeTower::ToolChangeResult> WipeTower2::prime(
             toolchange_Wipe(writer, cleaning_box , 20.f);
             WipeTower::box_coordinates box = cleaning_box;
             box.translate(0.f, writer.y() - cleaning_box.ld.y() + m_perimeter_width);
-            toolchange_Unload(writer, box , m_filpar[m_current_tool].material, m_filpar[tools[idx_tool + 1]].first_layer_temperature);
+            toolchange_Unload(writer, box , m_filpar[m_current_tool].material, m_filpar[tools[idx_tool + 1]].first_layer_temperature, tools[idx_tool + 1]);
             cleaning_box.translate(prime_section_width, 0.f);
             writer.travel(cleaning_box.ld, 7200);
         }
