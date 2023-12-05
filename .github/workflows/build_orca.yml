@@ -3,7 +3,7 @@ name: Build OrcaSlicer
 on: 
     push:
       branches: 
-       - main
+       - v1.8.1final
        - release/*
       paths:
        - 'src/**'
@@ -15,7 +15,7 @@ on:
 
     pull_request:
       branches: 
-       - main 
+       - v1.8.1final 
        - release/*
       paths:
        - 'src/**'

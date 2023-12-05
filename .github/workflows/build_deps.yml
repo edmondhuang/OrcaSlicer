@@ -4,13 +4,13 @@ name: Build deps
 on:
   pull_request:
     branches:
-      - main
+      - maiv1.8.1finaln
     paths:
       - 'deps/**'
       - .github/workflows/build_deps.yml
   push:
     branches:
-      - main
+      - v1.8.1final
     paths:
       - 'deps/**'
       - .github/workflows/build_deps.yml
