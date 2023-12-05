@@ -739,6 +739,7 @@ WipeTower::ToolChangeResult WipeTower::tool_change(size_t tool, bool extrude_per
     float wipe_depth = 0.f;
 	float wipe_length = 0.f;
     float purge_volume = 0.f;
+    float feedrate = is_first_layer() ? std::min(m_first_layer_speed * 60.f, 5400.f) : std::min(60.0f * m_filpar[m_current_tool].max_e_speed / m_extrusion_flow, 5400.f);
 	
 	// Finds this toolchange info
 	if (tool != (unsigned int)(-1))
@@ -798,7 +799,7 @@ WipeTower::ToolChangeResult WipeTower::tool_change(size_t tool, bool extrude_per
                 m_wipe_tower_width, m_layer_info->depth + m_perimeter_width);
             // align the perimeter
             wt_box = align_perimeter(wt_box);
-            writer.rectangle(wt_box);
+            writer.rectangle(wt_box, feedrate);
             writer.travel(initial_position);
         }
 
@@ -1300,7 +1301,7 @@ WipeTower::ToolChangeResult WipeTower::finish_layer(bool extrude_perimeter, bool
         box_coordinates box = wt_box;
         for (size_t i = 0; i < loops_num; ++i) {
             box.expand(spacing);
-            writer.rectangle(box);
+            writer.rectangle(box, feedrate);
         }
 
         if (first_layer) {

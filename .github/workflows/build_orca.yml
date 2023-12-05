@@ -3,7 +3,7 @@ name: Build OrcaSlicer
 on: 
     push:
       branches: 
-       - main
+       - v1.6.6final
       paths:
        - 'src/**'
        - '**/CMakeLists.txt'
@@ -14,7 +14,7 @@ on:
 
     pull_request:
       branches: 
-       - main 
+       - v1.6.6final 
       paths:
        - 'src/**'
        - '**/CMakeLists.txt'
