@@ -104,7 +104,7 @@ std::string GCodeWriter::set_temperature(unsigned int temperature, bool wait, in
         if (FLAVOR_IS(gcfRepRapFirmware)) { // M104 is deprecated on RepRapFirmware
             code = "G10";
         } else if (FLAVOR_IS(gcfKlipper)) {
-            code = "SET_TOOL_TEMPERATURE"
+            code = "SET_TOOL_TEMPERATURE";
         } else {
             code = "M104";
         }
