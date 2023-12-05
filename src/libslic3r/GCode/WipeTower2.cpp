@@ -335,7 +335,7 @@ public:
 	}
 
 	// Set extruder temperature, don't wait by default.
-	WipeTowerWriter2& set_extruder_temp(int temperature, bool wait = false, size_t tool)
+	WipeTowerWriter2& set_extruder_temp(int temperature, bool wait, size_t tool)
 	{
         //m_gcode += "M" + std::to_string(wait ? 109 : 104) + " S" + std::to_string(temperature) + "\n";
         m_gcode += "SET_TOOL_TEMPERATURE TOOL=" + std::to_string(tool) + " CHNG_STATE=2" + "\n";
