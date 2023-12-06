@@ -335,7 +335,7 @@ public:
 	}
 
 	// Set extruder temperature, don't wait by default.
-	WipeTowerWriter2& set_extruder_temp(int temperature, bool wait, size_t tool)
+	WipeTowerWriter2& set_extruder_temp(int temperature, bool wait = false, size_t tool = -1)
 	{
         //m_gcode += "M" + std::to_string(wait ? 109 : 104) + " S" + std::to_string(temperature) + "\n";
         m_gcode += "SET_TOOL_TEMPERATURE TOOL=" + std::to_string(tool) + " CHNG_STATE=2" + "\n";
@@ -960,7 +960,7 @@ void WipeTower2::toolchange_Unload(
     // for wrong extruder.
     if (m_semm) {
         // if (new_temperature != 0 && (new_temperature != m_old_temperature || is_first_layer()) ) { 	// Set the extruder temperature, but don't wait.
-        if (new_temperature != 0 ) { 	// Set the extruder temperature, but don't wait.
+        if (new_temperature != 0  && tool != (unsigned)(-1)) { 	// Set the extruder temperature, but don't wait.
             // If the required temperature is the same as last time, don't emit the M104 again (if user adjusted the value, it would be reset)
             // However, always change temperatures on the first layer (this is to avoid issues with priming lines turned off).
             writer.set_extruder_temp(new_temperature, false, tool);
