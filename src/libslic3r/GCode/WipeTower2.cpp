@@ -959,7 +959,8 @@ void WipeTower2::toolchange_Unload(
     // be already set and there is no need to change anything. Also, the temperature could be changed
     // for wrong extruder.
     if (m_semm) {
-        if (new_temperature != 0 && (new_temperature != m_old_temperature || is_first_layer()) ) { 	// Set the extruder temperature, but don't wait.
+        // if (new_temperature != 0 && (new_temperature != m_old_temperature || is_first_layer()) ) { 	// Set the extruder temperature, but don't wait.
+        if (new_temperature != 0 ) { 	// Set the extruder temperature, but don't wait.
             // If the required temperature is the same as last time, don't emit the M104 again (if user adjusted the value, it would be reset)
             // However, always change temperatures on the first layer (this is to avoid issues with priming lines turned off).
             writer.set_extruder_temp(new_temperature, false, tool);
