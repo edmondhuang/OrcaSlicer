@@ -112,13 +112,13 @@ std::string GCodeWriter::set_temperature(unsigned int temperature, bool wait, in
     }
     
     std::ostringstream gcode;
-    gcode << code << " ";
+    gcode << code; //Edmond
     if (FLAVOR_IS(gcfMach3) || FLAVOR_IS(gcfMachinekit)) {
-        gcode << "P" << temperature; //Edmond
+        gcode << " P" << temperature; //Edmond
     } else if (FLAVOR_IS(gcfKlipper)) { //Edmond
         gcode << " "; //Edmond
     } else {
-        gcode << "S" << temperature; //Edmond
+        gcode << " S" << temperature; //Edmond
     }
     // gcode << temperature; //Edmond
     bool multiple_tools = this->multiple_extruders && ! m_single_extruder_multi_material;
