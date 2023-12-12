@@ -115,6 +115,8 @@ std::string GCodeWriter::set_temperature(unsigned int temperature, bool wait, in
     gcode << code << " ";
     if (FLAVOR_IS(gcfMach3) || FLAVOR_IS(gcfMachinekit)) {
         gcode << "P";
+    } else if (FLAVOR_IS(gcfKlipper)) {
+        gcode << " ";
     } else {
         gcode << "S";
     }
@@ -124,7 +126,7 @@ std::string GCodeWriter::set_temperature(unsigned int temperature, bool wait, in
         if (FLAVOR_IS(gcfRepRapFirmware)) {
             gcode << " P" << tool;
         } else if (FLAVOR_IS(gcfKlipper)) {
-            gcode << " TOOL=" << tool << " CHNG_STATE=2";
+            gcode << "TOOL=" << tool << " CHNG_STATE=2";
         } else {
             gcode << " T" << tool;
         }
