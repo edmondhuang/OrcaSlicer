@@ -3374,6 +3374,7 @@ def = this->add("filament_loading_speed", coFloats);
     def->label = L("Single Extruder Multi Material");
     def->tooltip = L("Use single nozzle to print multi filament");
     def->mode = comAdvanced;
+//    def->readonly = true; //Edmond
     def->set_default_value(new ConfigOptionBool(true));
 
     def = this->add("manual_filament_change", coBool);

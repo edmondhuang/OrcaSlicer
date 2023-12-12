@@ -171,7 +171,7 @@ private:
     }
 
 
-	bool   m_semm               = false; // Are we using a single extruder multimaterial printer?
+	bool   m_semm               = false; // Are we using a single extruder multimaterial printer? //Edmond
 	bool   m_enable_filament_ramming = true;
     Vec2f  m_wipe_tower_pos; 			// Left front corner of the wipe tower in mm.
 	float  m_wipe_tower_width; 			// Width of the wipe tower.

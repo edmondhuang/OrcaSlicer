@@ -285,7 +285,7 @@ private:
     }
 
 	bool   m_enable_timelapse_print = false;
-	bool   m_semm               = false; // Are we using a single extruder multimaterial printer?
+	bool   m_semm               = false; // Are we using a single extruder multimaterial printer? //Edmond
 	bool   m_purge_in_prime_tower = false; // Do we purge in the prime tower?
     Vec2f  m_wipe_tower_pos; 			// Left front corner of the wipe tower in mm.
 	float  m_wipe_tower_width; 			// Width of the wipe tower.
