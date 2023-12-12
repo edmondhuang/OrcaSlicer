@@ -338,7 +338,14 @@ public:
 	WipeTowerWriter2& set_extruder_temp(int temperature, bool wait = false, size_t tool = -1) //Edmond
 	{
         //m_gcode += "M" + std::to_string(wait ? 109 : 104) + " S" + std::to_string(temperature) + "\n"; //Edmond
-        m_gcode += "SET_TOOL_TEMPERATURE TOOL=" + std::to_string(tool) + " CHNG_STATE=2" + "\n"; //Edmond
+        //m_gcode += "SET_TOOL_TEMPERATURE TOOL=" + std::to_string(tool) + " CHNG_STATE=2" + "\n"; //Edmond
+        //return *this;
+
+        //Edmond
+        if (m_gcode_flavor == gcfKlipper)
+            m_gcode += "SET_TOOL_TEMPERATURE TOOL=" + std::to_string(tool) + " CHNG_STATE=2" + "\n"; //Edmond
+        else
+            m_gcode += "M" + std::to_string(wait ? 109 : 104) + " S" + std::to_string(temperature) + "\n";
         return *this;
     }
 
