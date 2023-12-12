@@ -128,7 +128,13 @@ std::string GCodeWriter::set_temperature(unsigned int temperature, bool wait, in
         } else {
             gcode << " T" << tool;
         }
+    } else if (FLAVOR_IS(gcfKlipper))
+    {
+        std::ostringstream oss;
+        oss << "; Klipper firmware, ignore to set the global temperature";
+        return oss.str();
     }
+    
     gcode << " ; " << comment << "\n";
     
     if ((FLAVOR_IS(gcfTeacup) || FLAVOR_IS(gcfRepRapFirmware)) && wait)
