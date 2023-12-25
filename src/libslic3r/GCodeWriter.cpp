@@ -133,7 +133,7 @@ std::string GCodeWriter::set_temperature(unsigned int temperature, bool wait, in
     } else if (FLAVOR_IS(gcfKlipper)) //Edmond
     {
         std::ostringstream oss;
-        oss << "; Klipper firmware, ignore to set the global temperature";
+        oss << "; Klipper firmware, ignore to set the global temperature\n";
         return oss.str();
     }
     
