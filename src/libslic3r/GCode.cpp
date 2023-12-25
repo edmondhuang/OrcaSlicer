@@ -4244,6 +4244,7 @@ std::string GCode::extrude_loop(ExtrusionLoop loop, std::string description, dou
         // don't apply small perimeter setting for overhangs/bridges/non-perimeters
         is_small_peri = is_perimeter(path->role()) && !is_bridge(path->role()) && small_peri_speed > 0 && (path->get_overhang_degree() == 0 || path->get_overhang_degree() > 5);
         gcode += this->_extrude(*path, description, is_small_peri ? small_peri_speed : speed, gcode_toolChange);
+        gcode_toolChange.clear();
     }
 
     // BBS
@@ -4305,8 +4306,10 @@ std::string GCode::extrude_multi_path(ExtrusionMultiPath multipath, std::string 
 {
     // extrude along the path
     std::string gcode;
-    for (ExtrusionPath path : multipath.paths)
+    for (ExtrusionPath path : multipath.paths) {
         gcode += this->_extrude(path, description, speed, gcode_toolChange);
+        gcode_toolChange.clear();
+    }
 
     // BBS
     if (m_wipe.enable) {
@@ -4342,6 +4345,7 @@ std::string GCode::extrude_path(ExtrusionPath path, std::string description, dou
 {
 //    description += ExtrusionEntity::role_to_string(path.role());
     std::string gcode = this->_extrude(path, description, speed, gcode_toolChange);
+    gcode_toolChange.clear();
     if (m_wipe.enable) {
         m_wipe.path = std::move(path.polyline);
         m_wipe.path.reverse();
@@ -4358,8 +4362,10 @@ std::string GCode::extrude_perimeters(const Print &print, const std::vector<Obje
         if (! region.perimeters.empty()) {
             m_config.apply(print.get_print_region(&region - &by_region.front()).config());
 
-            for (const ExtrusionEntity* ee : region.perimeters)
+            for (const ExtrusionEntity* ee : region.perimeters) {
                 gcode += this->extrude_entity(*ee, "perimeter", gcode_toolChange, -1.);
+                gcode_toolChange.clear();
+            }
         }
     return gcode;
 }
@@ -4383,10 +4389,14 @@ std::string GCode::extrude_infill(const Print &print, const std::vector<ObjectBy
                 for (const ExtrusionEntity *fill : extrusions) {
                     auto *eec = dynamic_cast<const ExtrusionEntityCollection*>(fill);
                     if (eec) {
-                        for (ExtrusionEntity *ee : eec->chained_path_from(m_last_pos).entities)
+                        for (ExtrusionEntity *ee : eec->chained_path_from(m_last_pos).entities) {
                             gcode += this->extrude_entity(*ee, extrusion_name, gcode_toolChange);
-                    } else
+                            gcode_toolChange.clear();
+                        }
+                    } else {
                         gcode += this->extrude_entity(*fill, extrusion_name, gcode_toolChange);
+                        gcode_toolChange.clear();
+                    }
                 }
             }
         }
@@ -4415,16 +4425,20 @@ std::string GCode::extrude_support(const ExtrusionEntityCollection &support_fill
             const ExtrusionMultiPath* multipath = dynamic_cast<const ExtrusionMultiPath*>(ee);
             const ExtrusionLoop* loop = dynamic_cast<const ExtrusionLoop*>(ee);
             const ExtrusionEntityCollection* collection = dynamic_cast<const ExtrusionEntityCollection*>(ee);
-            if (path)
+            if (path) {
                 gcode += this->extrude_path(*path, label, speed, gcode_toolChange);
-            else if (multipath) {
+                gcode_toolChange.clear();
+            } else if (multipath) {
                 gcode += this->extrude_multi_path(*multipath, label, speed, gcode_toolChange);
+                gcode_toolChange.clear();
             }
             else if (loop) {
                 gcode += this->extrude_loop(*loop, label, speed, gcode_toolChange);
+                gcode_toolChange.clear();
             }
             else if (collection) {
                 gcode += extrude_support(*collection, gcode_toolChange);
+                gcode_toolChange.clear();
             }
             else {
                 throw Slic3r::InvalidArgument("Unknown extrusion type");
@@ -4535,6 +4549,7 @@ std::string GCode::_extrude(const ExtrusionPath &path, std::string description, 
 
     if (gcode_toolChange.empty() == false) {
         gcode += gcode_toolChange;
+        gcode_toolChange.clear();
     }
 
     // compensate retraction
