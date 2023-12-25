@@ -4191,7 +4191,7 @@ static std::unique_ptr<EdgeGrid::Grid> calculate_layer_edge_grid(const Layer& la
 }
 
 
-std::string GCode::extrude_loop(ExtrusionLoop loop, std::string description, double speed, const std::string gcode_toolChange)
+std::string GCode::extrude_loop(ExtrusionLoop loop, std::string description, double speed, std::string gcode_toolChange)
 {
     // get a copy; don't modify the orientation of the original loop object otherwise
     // next copies (if any) would not detect the correct orientation
@@ -4301,7 +4301,7 @@ std::string GCode::extrude_loop(ExtrusionLoop loop, std::string description, dou
     return gcode;
 }
 
-std::string GCode::extrude_multi_path(ExtrusionMultiPath multipath, std::string description, double speed, const std::string gcode_toolChange)
+std::string GCode::extrude_multi_path(ExtrusionMultiPath multipath, std::string description, double speed, std::string gcode_toolChange)
 {
     // extrude along the path
     std::string gcode;
@@ -4325,7 +4325,7 @@ std::string GCode::extrude_multi_path(ExtrusionMultiPath multipath, std::string 
     return gcode;
 }
 
-std::string GCode::extrude_entity(const ExtrusionEntity &entity, std::string description, double speed, const std::string gcode_toolChange)
+std::string GCode::extrude_entity(const ExtrusionEntity &entity, std::string description, double speed, std::string gcode_toolChange)
 {
     if (const ExtrusionPath* path = dynamic_cast<const ExtrusionPath*>(&entity))
         return this->extrude_path(*path, description, speed, gcode_toolChange);
@@ -4338,7 +4338,7 @@ std::string GCode::extrude_entity(const ExtrusionEntity &entity, std::string des
     return "";
 }
 
-std::string GCode::extrude_path(ExtrusionPath path, std::string description, double speed, const std::string gcode_toolChange)
+std::string GCode::extrude_path(ExtrusionPath path, std::string description, double speed, std::string gcode_toolChange)
 {
 //    description += ExtrusionEntity::role_to_string(path.role());
     std::string gcode = this->_extrude(path, description, speed, gcode_toolChange);
@@ -4351,7 +4351,7 @@ std::string GCode::extrude_path(ExtrusionPath path, std::string description, dou
 }
 
 // Extrude perimeters: Decide where to put seams (hide or align seams).
-std::string GCode::extrude_perimeters(const Print &print, const std::vector<ObjectByExtruder::Island::Region> &by_region, const std::string gcode_toolChange)
+std::string GCode::extrude_perimeters(const Print &print, const std::vector<ObjectByExtruder::Island::Region> &by_region, std::string gcode_toolChange)
 {
     std::string gcode;
     for (const ObjectByExtruder::Island::Region &region : by_region)
@@ -4365,7 +4365,7 @@ std::string GCode::extrude_perimeters(const Print &print, const std::vector<Obje
 }
 
 // Chain the paths hierarchically by a greedy algorithm to minimize a travel distance.
-std::string GCode::extrude_infill(const Print &print, const std::vector<ObjectByExtruder::Island::Region> &by_region, bool ironing, const std::string gcode_toolChange)
+std::string GCode::extrude_infill(const Print &print, const std::vector<ObjectByExtruder::Island::Region> &by_region, bool ironing, std::string gcode_toolChange)
 {
     std::string 		 gcode;
     ExtrusionEntitiesPtr extrusions;
@@ -4393,7 +4393,7 @@ std::string GCode::extrude_infill(const Print &print, const std::vector<ObjectBy
     return gcode;
 }
 
-std::string GCode::extrude_support(const ExtrusionEntityCollection &support_fills, const std::string gcode_toolChange)
+std::string GCode::extrude_support(const ExtrusionEntityCollection &support_fills, std::string gcode_toolChange)
 {
     static constexpr const char *support_label            = "support material";
     static constexpr const char *support_interface_label  = "support material interface";
@@ -4510,7 +4510,7 @@ static std::map<int, std::string> overhang_speed_key_map =
     {5, "bridge_speed"},
 };
 
-std::string GCode::_extrude(const ExtrusionPath &path, std::string description, double speed, const std::string gcode_toolChange)
+std::string GCode::_extrude(const ExtrusionPath &path, std::string description, double speed, std::string gcode_toolChange)
 {
     std::string gcode;
 
