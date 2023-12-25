@@ -3853,7 +3853,7 @@ LayerResult GCode::process_layer(
                 set_origin(unscaled(offset));
                 for (ExtrusionEntity* ee : layer.object()->object_skirt().entities)
                     //FIXME using the support_speed of the 1st object printed.
-                    gcode += this->extrude_entity(*ee, "skirt", m_config.support_speed.value, gcode_toolChange); //Inject and hack the "skirt" first =================================================="skirt" 222222
+                    gcode += this->extrude_entity(*ee, "skirt", gcode_toolChange, m_config.support_speed.value); //Inject and hack the "skirt" first =================================================="skirt" 222222
                     gcode_toolChange.clear();
             }
         }
@@ -3913,7 +3913,7 @@ LayerResult GCode::process_layer(
                         this->set_origin(0., 0.);
                         m_avoid_crossing_perimeters.use_external_mp();
                         for (const ExtrusionEntity* ee : print.m_supportBrimMap.at(instance_to_print.print_object.id()).entities) {
-                            gcode += this->extrude_entity(*ee, "brim", m_config.support_speed.value, gcode_toolChange); //Inject and hack the "brim" first =================================================="brim" 333333
+                            gcode += this->extrude_entity(*ee, "brim", gcode_toolChange, m_config.support_speed.value); //Inject and hack the "brim" first =================================================="brim" 333333
                             gcode_toolChange.clear();
                         }
                         m_avoid_crossing_perimeters.use_external_mp(false);
@@ -3955,7 +3955,7 @@ LayerResult GCode::process_layer(
                         this->set_origin(0., 0.);
                         m_avoid_crossing_perimeters.use_external_mp();
                         for (const ExtrusionEntity* ee : print.m_brimMap.at(instance_to_print.print_object.id()).entities) {
-                            gcode += this->extrude_entity(*ee, "brim", m_config.support_speed.value, gcode_toolChange); //Inject and hack the "brim" first =================================================="brim" 555555
+                            gcode += this->extrude_entity(*ee, "brim", gcode_toolChange, m_config.support_speed.value); //Inject and hack the "brim" first =================================================="brim" 555555
                             gcode_toolChange.clear();
                         }
                         m_avoid_crossing_perimeters.use_external_mp(false);
@@ -4325,7 +4325,7 @@ std::string GCode::extrude_multi_path(ExtrusionMultiPath multipath, std::string 
     return gcode;
 }
 
-std::string GCode::extrude_entity(const ExtrusionEntity &entity, std::string description, double speed, std::string gcode_toolChange)
+std::string GCode::extrude_entity(const ExtrusionEntity &entity, std::string description, std::string gcode_toolChange, double speed)
 {
     if (const ExtrusionPath* path = dynamic_cast<const ExtrusionPath*>(&entity))
         return this->extrude_path(*path, description, speed, gcode_toolChange);
@@ -4359,7 +4359,7 @@ std::string GCode::extrude_perimeters(const Print &print, const std::vector<Obje
             m_config.apply(print.get_print_region(&region - &by_region.front()).config());
 
             for (const ExtrusionEntity* ee : region.perimeters)
-                gcode += this->extrude_entity(*ee, "perimeter", -1., gcode_toolChange);
+                gcode += this->extrude_entity(*ee, "perimeter", gcode_toolChange, -1.);
         }
     return gcode;
 }

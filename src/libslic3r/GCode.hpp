@@ -342,7 +342,7 @@ private:
     std::string     preamble();
     // BBS
     std::string     change_layer(coordf_t print_z);
-    std::string     extrude_entity(const ExtrusionEntity &entity, std::string description = "", double speed = -1., std::string gcode_toolChange = "");
+    std::string     extrude_entity(const ExtrusionEntity &entity, std::string description = "", std::string gcode_toolChange = "", double speed = -1.);
     std::string     extrude_loop(ExtrusionLoop loop, std::string description, double speed = -1., std::string gcode_toolChange = "");
     std::string     extrude_multi_path(ExtrusionMultiPath multipath, std::string description = "", double speed = -1., std::string gcode_toolChange = "");
     std::string     extrude_path(ExtrusionPath path, std::string description = "", double speed = -1., std::string gcode_toolChange = "");
