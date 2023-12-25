@@ -4534,7 +4534,7 @@ std::string GCode::_extrude(const ExtrusionPath &path, std::string description, 
     m_writer.add_object_change_labels(gcode);
 
     if (gcode_toolChange.empty() == false) {
-        gcode + = gcode_toolChange;
+        gcode += gcode_toolChange;
     }
 
     // compensate retraction
