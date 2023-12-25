@@ -4533,7 +4533,7 @@ std::string GCode::_extrude(const ExtrusionPath &path, std::string description, 
     // should be already done by travel_to, but just in case
     m_writer.add_object_change_labels(gcode);
 
-    if (!gcode_toolChange.empty()) {
+    if (gcode_toolChange.empty() == false) {
         gcode + = gcode_toolChange;
     }
 
