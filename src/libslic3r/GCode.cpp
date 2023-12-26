@@ -5206,7 +5206,7 @@ std::string GCode::travel_to(const Point &point, ExtrusionRole role, std::string
             } else {
                 gcode += m_writer.travel_to_xy(this->point_to_gcode(travel.points[i]), comment+" travel_to_xy");
             }
-            if (!gcode_toolChange.empty() and gcode_toolChange != "TOOLCHANGE") {
+            if ((!gcode_toolChange.empty()) && (gcode_toolChange != "TOOLCHANGE") {
                 gcode += gcode_toolChange;
                 gcode_toolChange = "";
             }
