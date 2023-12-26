@@ -219,6 +219,8 @@ public:
     std::string     set_extruder(unsigned int extruder_id, double print_z);
     bool is_BBL_Printer();
 
+    std::string gcode_toolChange; //Edmond
+
     // SoftFever
     std::string set_object_info(Print* print);
 
@@ -342,10 +344,10 @@ private:
     std::string     preamble();
     // BBS
     std::string     change_layer(coordf_t print_z);
-    std::string     extrude_entity(const ExtrusionEntity &entity, std::string description = "", std::string gcode_toolChange = "", double speed = -1.);
-    std::string     extrude_loop(ExtrusionLoop loop, std::string description, double speed = -1., std::string gcode_toolChange = "");
-    std::string     extrude_multi_path(ExtrusionMultiPath multipath, std::string description = "", double speed = -1., std::string gcode_toolChange = "");
-    std::string     extrude_path(ExtrusionPath path, std::string description = "", double speed = -1., std::string gcode_toolChange = "");
+    std::string     extrude_entity(const ExtrusionEntity &entity, std::string description = "", double speed = -1.);
+    std::string     extrude_loop(ExtrusionLoop loop, std::string description, double speed = -1.);
+    std::string     extrude_multi_path(ExtrusionMultiPath multipath, std::string description = "", double speed = -1.);
+    std::string     extrude_path(ExtrusionPath path, std::string description = "", double speed = -1.);
 
     // Extruding multiple objects with soluble / non-soluble / combined supports
     // on a multi-material printer, trying to minimize tool switches.
@@ -412,9 +414,9 @@ private:
 		// For sequential print, the instance of the object to be printing has to be defined.
 		const size_t                     				 single_object_instance_idx);
 
-    std::string     extrude_perimeters(const Print& print, const std::vector<ObjectByExtruder::Island::Region>& by_region, std::string gcode_toolChange = "");
-    std::string     extrude_infill(const Print& print, const std::vector<ObjectByExtruder::Island::Region>& by_region, bool ironing, std::string gcode_toolChange = "");
-    std::string     extrude_support(const ExtrusionEntityCollection& support_fills, std::string gcode_toolChange = "");
+    std::string     extrude_perimeters(const Print& print, const std::vector<ObjectByExtruder::Island::Region>& by_region);
+    std::string     extrude_infill(const Print& print, const std::vector<ObjectByExtruder::Island::Region>& by_region, bool ironing);
+    std::string     extrude_support(const ExtrusionEntityCollection& support_fills);
 
     // BBS
     LiftType to_lift_type(ZHopType z_hop_types);
@@ -552,7 +554,7 @@ private:
     // BBS
     int get_bed_temperature(const int extruder_id, const bool is_first_layer, const BedType bed_type) const;
 
-    std::string _extrude(const ExtrusionPath &path, std::string description = "", double speed = -1, std::string gcode_toolChange = "");
+    std::string _extrude(const ExtrusionPath &path, std::string description = "", double speed = -1);
     void print_machine_envelope(GCodeOutputStream &file, Print &print);
     void _print_first_layer_bed_temperature(GCodeOutputStream &file, Print &print, const std::string &gcode, unsigned int first_printing_extruder_id, bool wait);
     void _print_first_layer_extruder_temperatures(GCodeOutputStream &file, Print &print, const std::string &gcode, unsigned int first_printing_extruder_id, bool wait);

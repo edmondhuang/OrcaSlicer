@@ -3753,7 +3753,7 @@ LayerResult GCode::process_layer(
     // Extrude the skirt, brim, support, perimeters, infill ordered by the extruders.
     for (unsigned int extruder_id : layer_tools.extruders)
     {
-        std::string gcode_toolChange; //Edmond
+        // std::string gcode_toolChange; //Edmond
         if (has_wipe_tower) {
             if (!m_wipe_tower->is_empty_wipe_tower_gcode(*this, extruder_id, extruder_id == layer_tools.extruders.back())) {
                 if (need_insert_timelapse_gcode_for_traditional && !has_insert_timelapse_gcode) {
@@ -3776,6 +3776,7 @@ LayerResult GCode::process_layer(
             }
         } else {
             // gcode += this->set_extruder(extruder_id, print_z);
+            gcode_toolChange = "";
             gcode_toolChange += this->set_extruder(extruder_id, print_z);
         }
 
@@ -3797,8 +3798,7 @@ LayerResult GCode::process_layer(
                     path.mm3_per_mm = mm3_per_mm;
                 }
                 //FIXME using the support_speed of the 1st object printed.
-                gcode += this->extrude_loop(loop, "skirt", m_config.support_speed.value, gcode_toolChange); //Inject and hack the "skirt" first =================================================="skirt" 111111
-                gcode_toolChange.clear();
+                gcode += this->extrude_loop(loop, "skirt", m_config.support_speed.value); //Inject and hack the "skirt" first =================================================="skirt" 111111
             }
             m_avoid_crossing_perimeters.use_external_mp(false);
             // Allow a straight travel move to the first object point if this is the first layer (but don't in next layers).
@@ -3853,8 +3853,7 @@ LayerResult GCode::process_layer(
                 set_origin(unscaled(offset));
                 for (ExtrusionEntity* ee : layer.object()->object_skirt().entities)
                     //FIXME using the support_speed of the 1st object printed.
-                    gcode += this->extrude_entity(*ee, "skirt", gcode_toolChange, m_config.support_speed.value); //Inject and hack the "skirt" first =================================================="skirt" 222222
-                    gcode_toolChange.clear();
+                    gcode += this->extrude_entity(*ee, "skirt", m_config.support_speed.value); //Inject and hack the "skirt" first =================================================="skirt" 222222
             }
         }
 
@@ -3912,10 +3911,8 @@ LayerResult GCode::process_layer(
                     if (this->m_objSupportsWithBrim.find(instance_to_print.print_object.id()) != this->m_objSupportsWithBrim.end() && !print_wipe_extrusions) {
                         this->set_origin(0., 0.);
                         m_avoid_crossing_perimeters.use_external_mp();
-                        for (const ExtrusionEntity* ee : print.m_supportBrimMap.at(instance_to_print.print_object.id()).entities) {
-                            gcode += this->extrude_entity(*ee, "brim", gcode_toolChange, m_config.support_speed.value); //Inject and hack the "brim" first =================================================="brim" 333333
-                            gcode_toolChange.clear();
-                        }
+                        for (const ExtrusionEntity* ee : print.m_supportBrimMap.at(instance_to_print.print_object.id()).entities)
+                            gcode += this->extrude_entity(*ee, "brim", m_config.support_speed.value); //Inject and hack the "brim" first =================================================="brim" 333333
                         m_avoid_crossing_perimeters.use_external_mp(false);
                         // Allow a straight travel move to the first object point.
                         m_avoid_crossing_perimeters.disable_once();
@@ -3937,12 +3934,10 @@ LayerResult GCode::process_layer(
 
                     ExtrusionRole support_extrusion_role = instance_to_print.object_by_extruder.support_extrusion_role;
                     bool is_overridden = support_extrusion_role == erSupportMaterialInterface ? support_intf_overridden : support_overridden;
-                    if (is_overridden == (print_wipe_extrusions != 0)) {
+                    if (is_overridden == (print_wipe_extrusions != 0))
                         gcode += this->extrude_support(
                             // support_extrusion_role is erSupportMaterial, erSupportTransition, erSupportMaterialInterface or erMixed for all extrusion paths.
-                            instance_to_print.object_by_extruder.support->chained_path_from(m_last_pos, support_extrusion_role), gcode_toolChange); //Inject and hack the "support" first =================================================="support" 444444
-                        gcode_toolChange.clear();
-                    }
+                            instance_to_print.object_by_extruder.support->chained_path_from(m_last_pos, support_extrusion_role)); //Inject and hack the "support" first =================================================="support" 444444
                     m_layer = layer_to_print.layer();
                     m_object_layer_over_raft = object_layer_over_raft;
                 }
@@ -3954,10 +3949,8 @@ LayerResult GCode::process_layer(
                     if (this->m_objsWithBrim.find(instance_to_print.print_object.id()) != this->m_objsWithBrim.end() && !print_wipe_extrusions) {
                         this->set_origin(0., 0.);
                         m_avoid_crossing_perimeters.use_external_mp();
-                        for (const ExtrusionEntity* ee : print.m_brimMap.at(instance_to_print.print_object.id()).entities) {
-                            gcode += this->extrude_entity(*ee, "brim", gcode_toolChange, m_config.support_speed.value); //Inject and hack the "brim" first =================================================="brim" 555555
-                            gcode_toolChange.clear();
-                        }
+                        for (const ExtrusionEntity* ee : print.m_brimMap.at(instance_to_print.print_object.id()).entities)
+                            gcode += this->extrude_entity(*ee, "brim", m_config.support_speed.value); //Inject and hack the "brim" first =================================================="brim" 555555
                         m_avoid_crossing_perimeters.use_external_mp(false);
                         // Allow a straight travel move to the first object point.
                         m_avoid_crossing_perimeters.disable_once();
@@ -3976,18 +3969,15 @@ LayerResult GCode::process_layer(
                     //BBS: for first layer, we always print wall firstly to get better bed adhesive force
                     //This behaviour is same with cura
                     if (is_infill_first && !first_layer) {
-                        gcode += this->extrude_infill(print, by_region_specific, false, gcode_toolChange);; //Inject and hack the "infill" first =================================================="infill" 666666
-                        gcode_toolChange.clear();
-                        gcode += this->extrude_perimeters(print, by_region_specific, gcode_toolChange);
+                        gcode += this->extrude_infill(print, by_region_specific, false);; //Inject and hack the "infill" first =================================================="infill" 666666
+                        gcode += this->extrude_perimeters(print, by_region_specific);
                     } else {
-                        gcode += this->extrude_perimeters(print, by_region_specific, gcode_toolChange); //Inject and hack the "perimeters" first =================================================="perimeters" 666666
-                        gcode_toolChange.clear();
-                        gcode += this->extrude_infill(print,by_region_specific, false, gcode_toolChange);
+                        gcode += this->extrude_perimeters(print, by_region_specific); //Inject and hack the "perimeters" first =================================================="perimeters" 666666
+                        gcode += this->extrude_infill(print,by_region_specific, false);
                     }
 
                     // ironing
-                    gcode += this->extrude_infill(print,by_region_specific, true, gcode_toolChange);
-                    gcode_toolChange.clear();
+                    gcode += this->extrude_infill(print,by_region_specific, true);
                 }
 
                 if (this->config().gcode_label_objects) {
@@ -4191,7 +4181,7 @@ static std::unique_ptr<EdgeGrid::Grid> calculate_layer_edge_grid(const Layer& la
 }
 
 
-std::string GCode::extrude_loop(ExtrusionLoop loop, std::string description, double speed, std::string gcode_toolChange)
+std::string GCode::extrude_loop(ExtrusionLoop loop, std::string description, double speed)
 {
     // get a copy; don't modify the orientation of the original loop object otherwise
     // next copies (if any) would not detect the correct orientation
@@ -4243,8 +4233,7 @@ std::string GCode::extrude_loop(ExtrusionLoop loop, std::string description, dou
 //    description += ExtrusionEntity::role_to_string(path->role);
         // don't apply small perimeter setting for overhangs/bridges/non-perimeters
         is_small_peri = is_perimeter(path->role()) && !is_bridge(path->role()) && small_peri_speed > 0 && (path->get_overhang_degree() == 0 || path->get_overhang_degree() > 5);
-        gcode += this->_extrude(*path, description, is_small_peri ? small_peri_speed : speed, gcode_toolChange);
-        gcode_toolChange.clear();
+        gcode += this->_extrude(*path, description, is_small_peri ? small_peri_speed : speed);
     }
 
     // BBS
@@ -4302,14 +4291,12 @@ std::string GCode::extrude_loop(ExtrusionLoop loop, std::string description, dou
     return gcode;
 }
 
-std::string GCode::extrude_multi_path(ExtrusionMultiPath multipath, std::string description, double speed, std::string gcode_toolChange)
+std::string GCode::extrude_multi_path(ExtrusionMultiPath multipath, std::string description, double speed)
 {
     // extrude along the path
     std::string gcode;
-    for (ExtrusionPath path : multipath.paths) {
-        gcode += this->_extrude(path, description, speed, gcode_toolChange);
-        gcode_toolChange.clear();
-    }
+    for (ExtrusionPath path : multipath.paths)
+        gcode += this->_extrude(path, description, speed);
 
     // BBS
     if (m_wipe.enable) {
@@ -4328,24 +4315,23 @@ std::string GCode::extrude_multi_path(ExtrusionMultiPath multipath, std::string 
     return gcode;
 }
 
-std::string GCode::extrude_entity(const ExtrusionEntity &entity, std::string description, std::string gcode_toolChange, double speed)
+std::string GCode::extrude_entity(const ExtrusionEntity &entity, std::string description, double speed)
 {
     if (const ExtrusionPath* path = dynamic_cast<const ExtrusionPath*>(&entity))
-        return this->extrude_path(*path, description, speed, gcode_toolChange);
+        return this->extrude_path(*path, description, speed);
     else if (const ExtrusionMultiPath* multipath = dynamic_cast<const ExtrusionMultiPath*>(&entity))
-        return this->extrude_multi_path(*multipath, description, speed, gcode_toolChange);
+        return this->extrude_multi_path(*multipath, description, speed);
     else if (const ExtrusionLoop* loop = dynamic_cast<const ExtrusionLoop*>(&entity))
-        return this->extrude_loop(*loop, description, speed, gcode_toolChange);
+        return this->extrude_loop(*loop, description, speed);
     else
         throw Slic3r::InvalidArgument("Invalid argument supplied to extrude()");
     return "";
 }
 
-std::string GCode::extrude_path(ExtrusionPath path, std::string description, double speed, std::string gcode_toolChange)
+std::string GCode::extrude_path(ExtrusionPath path, std::string description, double speed)
 {
 //    description += ExtrusionEntity::role_to_string(path.role());
-    std::string gcode = this->_extrude(path, description, speed, gcode_toolChange);
-    gcode_toolChange.clear();
+    std::string gcode = this->_extrude(path, description, speed);
     if (m_wipe.enable) {
         m_wipe.path = std::move(path.polyline);
         m_wipe.path.reverse();
@@ -4355,23 +4341,21 @@ std::string GCode::extrude_path(ExtrusionPath path, std::string description, dou
 }
 
 // Extrude perimeters: Decide where to put seams (hide or align seams).
-std::string GCode::extrude_perimeters(const Print &print, const std::vector<ObjectByExtruder::Island::Region> &by_region, std::string gcode_toolChange)
+std::string GCode::extrude_perimeters(const Print &print, const std::vector<ObjectByExtruder::Island::Region> &by_region)
 {
     std::string gcode;
     for (const ObjectByExtruder::Island::Region &region : by_region)
         if (! region.perimeters.empty()) {
             m_config.apply(print.get_print_region(&region - &by_region.front()).config());
 
-            for (const ExtrusionEntity* ee : region.perimeters) {
-                gcode += this->extrude_entity(*ee, "perimeter", gcode_toolChange, -1.);
-                gcode_toolChange.clear();
-            }
+            for (const ExtrusionEntity* ee : region.perimeters)
+                gcode += this->extrude_entity(*ee, "perimeter", -1.);
         }
     return gcode;
 }
 
 // Chain the paths hierarchically by a greedy algorithm to minimize a travel distance.
-std::string GCode::extrude_infill(const Print &print, const std::vector<ObjectByExtruder::Island::Region> &by_region, bool ironing, std::string gcode_toolChange)
+std::string GCode::extrude_infill(const Print &print, const std::vector<ObjectByExtruder::Island::Region> &by_region, bool ironing)
 {
     std::string 		 gcode;
     ExtrusionEntitiesPtr extrusions;
@@ -4389,21 +4373,17 @@ std::string GCode::extrude_infill(const Print &print, const std::vector<ObjectBy
                 for (const ExtrusionEntity *fill : extrusions) {
                     auto *eec = dynamic_cast<const ExtrusionEntityCollection*>(fill);
                     if (eec) {
-                        for (ExtrusionEntity *ee : eec->chained_path_from(m_last_pos).entities) {
-                            gcode += this->extrude_entity(*ee, extrusion_name, gcode_toolChange);
-                            gcode_toolChange.clear();
-                        }
-                    } else {
-                        gcode += this->extrude_entity(*fill, extrusion_name, gcode_toolChange);
-                        gcode_toolChange.clear();
-                    }
+                        for (ExtrusionEntity *ee : eec->chained_path_from(m_last_pos).entities) 
+                            gcode += this->extrude_entity(*ee, extrusion_name);
+                    } else
+                        gcode += this->extrude_entity(*fill, extrusion_name);
                 }
             }
         }
     return gcode;
 }
 
-std::string GCode::extrude_support(const ExtrusionEntityCollection &support_fills, std::string gcode_toolChange)
+std::string GCode::extrude_support(const ExtrusionEntityCollection &support_fills)
 {
     static constexpr const char *support_label            = "support material";
     static constexpr const char *support_interface_label  = "support material interface";
@@ -4426,19 +4406,15 @@ std::string GCode::extrude_support(const ExtrusionEntityCollection &support_fill
             const ExtrusionLoop* loop = dynamic_cast<const ExtrusionLoop*>(ee);
             const ExtrusionEntityCollection* collection = dynamic_cast<const ExtrusionEntityCollection*>(ee);
             if (path) {
-                gcode += this->extrude_path(*path, label, speed, gcode_toolChange);
-                gcode_toolChange.clear();
+                gcode += this->extrude_path(*path, label, speed);
             } else if (multipath) {
-                gcode += this->extrude_multi_path(*multipath, label, speed, gcode_toolChange);
-                gcode_toolChange.clear();
+                gcode += this->extrude_multi_path(*multipath, label, speed);
             }
             else if (loop) {
-                gcode += this->extrude_loop(*loop, label, speed, gcode_toolChange);
-                gcode_toolChange.clear();
+                gcode += this->extrude_loop(*loop, label, speed);
             }
             else if (collection) {
-                gcode += extrude_support(*collection, gcode_toolChange);
-                gcode_toolChange.clear();
+                gcode += extrude_support(*collection);
             }
             else {
                 throw Slic3r::InvalidArgument("Unknown extrusion type");
@@ -4524,7 +4500,7 @@ static std::map<int, std::string> overhang_speed_key_map =
     {5, "bridge_speed"},
 };
 
-std::string GCode::_extrude(const ExtrusionPath &path, std::string description, double speed, std::string gcode_toolChange)
+std::string GCode::_extrude(const ExtrusionPath &path, std::string description, double speed)
 {
     std::string gcode;
 
@@ -4547,9 +4523,9 @@ std::string GCode::_extrude(const ExtrusionPath &path, std::string description, 
     // should be already done by travel_to, but just in case
     m_writer.add_object_change_labels(gcode);
 
-    if (gcode_toolChange.empty() == false) {
+    if (!gcode_toolChange.empty()) {
         gcode += gcode_toolChange;
-        gcode_toolChange.clear();
+        gcode_toolChange = "";
     }
 
     // compensate retraction
