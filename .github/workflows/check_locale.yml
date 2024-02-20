@@ -3,7 +3,7 @@ name: Check locale
 on: 
     pull_request:
       branches: 
-       - main 
+       - v1.9final 
       paths:
        - 'localization/**'
        - ".github/workflows/check_locale.yml"
