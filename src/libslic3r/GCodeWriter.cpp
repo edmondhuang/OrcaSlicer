@@ -103,6 +103,8 @@ std::string GCodeWriter::set_temperature(unsigned int temperature, bool wait, in
     } else {
         if (FLAVOR_IS(gcfRepRapFirmware)) { // M104 is deprecated on RepRapFirmware
             code = "G10";
+        } else if (FLAVOR_IS(gcfKlipper)) { //Edmond
+            code = "SET_TOOL_TEMPERATURE";
         } else {
             code = "M104";
         }
@@ -110,21 +112,31 @@ std::string GCodeWriter::set_temperature(unsigned int temperature, bool wait, in
     }
     
     std::ostringstream gcode;
-    gcode << code << " ";
+    gcode << code; //Edmond
     if (FLAVOR_IS(gcfMach3) || FLAVOR_IS(gcfMachinekit)) {
-        gcode << "P";
+        gcode << " P" << temperature; //Edmond
+    } else if (FLAVOR_IS(gcfKlipper)) { //Edmond
+        gcode << " "; //Edmond
     } else {
-        gcode << "S";
+        gcode << " S" << temperature; //Edmond
     }
-    gcode << temperature;
+    // gcode << temperature; //Edmond
     bool multiple_tools = this->multiple_extruders && ! m_single_extruder_multi_material;
-    if (tool != -1 && (multiple_tools || FLAVOR_IS(gcfMakerWare) || FLAVOR_IS(gcfSailfish)) ) {
+    if (tool != -1 && (FLAVOR_IS(gcfKlipper) || FLAVOR_IS(gcfMakerWare) || FLAVOR_IS(gcfSailfish)) ) { //Edmond
         if (FLAVOR_IS(gcfRepRapFirmware)) {
             gcode << " P" << tool;
+        } else if (FLAVOR_IS(gcfKlipper)) { //Edmond
+            gcode << "TOOL=" << tool << " CHNG_STATE=2"; //Edmond
         } else {
             gcode << " T" << tool;
         }
+    } else if (FLAVOR_IS(gcfKlipper)) //Edmond
+    {
+        std::ostringstream oss;
+        oss << "; Klipper firmware, ignore to set the global temperature\n";
+        return oss.str();
     }
+    
     gcode << " ; " << comment << "\n";
     
     if ((FLAVOR_IS(gcfTeacup) || FLAVOR_IS(gcfRepRapFirmware)) && wait)

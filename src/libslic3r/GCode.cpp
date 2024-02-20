@@ -3905,6 +3905,7 @@ LayerResult GCode::process_layer(
     // Extrude the skirt, brim, support, perimeters, infill ordered by the extruders.
     for (unsigned int extruder_id : layer_tools.extruders)
     {
+        // std::string gcode_toolChange; //Edmond
         if (has_wipe_tower) {
             if (!m_wipe_tower->is_empty_wipe_tower_gcode(*this, extruder_id, extruder_id == layer_tools.extruders.back())) {
                 if (need_insert_timelapse_gcode_for_traditional && !has_insert_timelapse_gcode) {
@@ -3926,7 +3927,12 @@ LayerResult GCode::process_layer(
                 gcode += m_wipe_tower->tool_change(*this, extruder_id, extruder_id == layer_tools.extruders.back());
             }
         } else {
+            // Edmond
+            gcode_toolChange = "TOOLCHANGE";
             gcode += this->set_extruder(extruder_id, print_z);
+            // Edmond
+            // gcode_toolChange = "";
+            // gcode_toolChange += this->set_extruder(extruder_id, print_z);
         }
 
         // let analyzer tag generator aware of a role type change
@@ -3947,7 +3953,7 @@ LayerResult GCode::process_layer(
                     path.mm3_per_mm = mm3_per_mm;
                 }
                 //FIXME using the support_speed of the 1st object printed.
-                gcode += this->extrude_loop(loop, "skirt", m_config.support_speed.value);
+                gcode += this->extrude_loop(loop, "skirt", m_config.support_speed.value); //Inject and hack the "skirt" first =================================================="skirt" 111111
             }
             m_avoid_crossing_perimeters.use_external_mp(false);
             // Allow a straight travel move to the first object point if this is the first layer (but don't in next layers).
@@ -4002,7 +4008,7 @@ LayerResult GCode::process_layer(
                 set_origin(unscaled(offset));
                 for (ExtrusionEntity* ee : layer.object()->object_skirt().entities)
                     //FIXME using the support_speed of the 1st object printed.
-                    gcode += this->extrude_entity(*ee, "skirt", m_config.support_speed.value);
+                    gcode += this->extrude_entity(*ee, "skirt", m_config.support_speed.value); //Inject and hack the "skirt" first =================================================="skirt" 222222
             }
         }
 
@@ -4067,7 +4073,7 @@ LayerResult GCode::process_layer(
                         this->set_origin(0., 0.);
                         m_avoid_crossing_perimeters.use_external_mp();
                         for (const ExtrusionEntity* ee : print.m_supportBrimMap.at(instance_to_print.print_object.id()).entities) {
-                            gcode += this->extrude_entity(*ee, "brim", m_config.support_speed.value);
+                            gcode += this->extrude_entity(*ee, "brim", m_config.support_speed.value); //Inject and hack the "brim" first =================================================="brim" 333333
                         }
                         m_avoid_crossing_perimeters.use_external_mp(false);
                         // Allow a straight travel move to the first object point.
@@ -4093,7 +4099,7 @@ LayerResult GCode::process_layer(
                     if (is_overridden == (print_wipe_extrusions != 0))
                         gcode += this->extrude_support(
                             // support_extrusion_role is erSupportMaterial, erSupportTransition, erSupportMaterialInterface or erMixed for all extrusion paths.
-                            instance_to_print.object_by_extruder.support->chained_path_from(m_last_pos, support_extrusion_role));
+                            instance_to_print.object_by_extruder.support->chained_path_from(m_last_pos, support_extrusion_role)); //Inject and hack the "support" first =================================================="support" 444444
 
                     m_layer = layer_to_print.layer();
                     m_object_layer_over_raft = object_layer_over_raft;
@@ -4107,7 +4113,7 @@ LayerResult GCode::process_layer(
                         this->set_origin(0., 0.);
                         m_avoid_crossing_perimeters.use_external_mp();
                         for (const ExtrusionEntity* ee : print.m_brimMap.at(instance_to_print.print_object.id()).entities) {
-                            gcode += this->extrude_entity(*ee, "brim", m_config.support_speed.value);
+                            gcode += this->extrude_entity(*ee, "brim", m_config.support_speed.value); //Inject and hack the "brim" first =================================================="brim" 555555
                         }
                         m_avoid_crossing_perimeters.use_external_mp(false);
                         // Allow a straight travel move to the first object point.
@@ -4151,10 +4157,10 @@ LayerResult GCode::process_layer(
 
                             has_insert_timelapse_gcode = true;
                         }
-                        gcode += this->extrude_infill(print, by_region_specific, false);
+                        gcode += this->extrude_infill(print, by_region_specific, false); //Inject and hack the "infill" first =================================================="infill" 666666
                         gcode += this->extrude_perimeters(print, by_region_specific);
                     } else {
-                        gcode += this->extrude_perimeters(print, by_region_specific);
+                        gcode += this->extrude_perimeters(print, by_region_specific); //Inject and hack the "perimeters" first =================================================="perimeters" 666666
                         if (!has_wipe_tower && need_insert_timelapse_gcode_for_traditional && !has_insert_timelapse_gcode && has_infill(by_region_specific)) {
                             gcode += this->retract(false, false, LiftType::NormalLift);
 
@@ -4787,6 +4793,11 @@ std::string GCode::_extrude(const ExtrusionPath &path, std::string description, 
     // should be already done by travel_to, but just in case
     m_writer.add_object_change_labels(gcode);
 
+    // if (!gcode_toolChange.empty()) {
+    //     gcode += gcode_toolChange;
+    //     gcode_toolChange = "";
+    // }
+
     // compensate retraction
     gcode += this->unretract();
     m_config.apply(m_calib_config);
@@ -5363,17 +5374,38 @@ std::string GCode::travel_to(const Point &point, ExtrusionRole role, std::string
     // Orca: we don't need to optimize the Klipper as only set once
     double jerk_to_set = 0.0;
     unsigned int acceleration_to_set = 0;
+//Edmond
+//    if (this->on_first_layer()) {
+//        if (m_config.default_acceleration.value > 0 && m_config.initial_layer_acceleration.value > 0) {
+//            acceleration_to_set = (unsigned int) floor(m_config.initial_layer_acceleration.value + 0.5);
+//        }
+//        if (m_config.default_jerk.value > 0 && m_config.initial_layer_jerk.value > 0) {
+//            jerk_to_set = m_config.initial_layer_jerk.value;
+//        }
+//    } else {
+//        if (m_config.default_acceleration.value > 0 && m_config.travel_acceleration.value > 0) {
+//            acceleration_to_set = (unsigned int) floor(m_config.travel_acceleration.value + 0.5);
+//        }
+//        if (m_config.default_jerk.value > 0 && m_config.travel_jerk.value > 0) {
+//            jerk_to_set = m_config.travel_jerk.value;
+//        }
+//    }
+    if (m_config.default_acceleration.value > 0 && m_config.travel_acceleration.value > 0) {
+        acceleration_to_set = (unsigned int) floor(m_config.travel_acceleration.value + 0.5);
+    }
     if (this->on_first_layer()) {
-        if (m_config.default_acceleration.value > 0 && m_config.initial_layer_acceleration.value > 0) {
-            acceleration_to_set = (unsigned int) floor(m_config.initial_layer_acceleration.value + 0.5);
-        }
+//Edmond
+//        if (m_config.default_acceleration.value > 0 && m_config.initial_layer_acceleration.value > 0) {
+//            acceleration_to_set = (unsigned int) floor(m_config.initial_layer_acceleration.value + 0.5);
+//        }
         if (m_config.default_jerk.value > 0 && m_config.initial_layer_jerk.value > 0) {
             jerk_to_set = m_config.initial_layer_jerk.value;
         }
     } else {
-        if (m_config.default_acceleration.value > 0 && m_config.travel_acceleration.value > 0) {
-            acceleration_to_set = (unsigned int) floor(m_config.travel_acceleration.value + 0.5);
-        }
+//Edmond
+//        if (m_config.default_acceleration.value > 0 && m_config.travel_acceleration.value > 0) {
+//            acceleration_to_set = (unsigned int) floor(m_config.travel_acceleration.value + 0.5);
+//        }
         if (m_config.default_jerk.value > 0 && m_config.travel_jerk.value > 0) {
             jerk_to_set = m_config.travel_jerk.value;
         }
@@ -5429,7 +5461,7 @@ std::string GCode::travel_to(const Point &point, ExtrusionRole role, std::string
 
     // use G1 because we rely on paths being straight (G0 may make round paths)
     if (travel.size() >= 2) {
-        for (size_t i = 1; i < travel.size(); ++ i) {
+        for (size_t i = 1; i < travel.size(); ++ i) { //Edmond - Hack here about the first moving ==============================================================
             // BBS. Process lazy layer change, but don't do lazy layer change when enable spiral vase
             Vec3d curr_pos = m_writer.get_position();
             if (i == 1 && !m_spiral_vase) {
@@ -5438,6 +5470,10 @@ std::string GCode::travel_to(const Point &point, ExtrusionRole role, std::string
                 gcode += m_writer.travel_to_xyz(dest3d, comment+" travel_to_xyz");
             } else {
                 gcode += m_writer.travel_to_xy(this->point_to_gcode(travel.points[i]), comment+" travel_to_xy");
+            }
+            if (!gcode_toolChange.empty() && gcode_toolChange != "TOOLCHANGE") {
+                gcode += gcode_toolChange;
+                gcode_toolChange = "";
             }
         }
         this->set_last_pos(travel.points.back());
@@ -5660,7 +5696,15 @@ std::string GCode::set_extruder(unsigned int extruder_id, double print_z, bool b
             gcode += m_writer.set_pressure_advance(m_config.pressure_advance.get_at(extruder_id));
         }
 
-        gcode += m_writer.toolchange(extruder_id);
+        // gcode += m_writer.toolchange(extruder_id);
+        // Edmond
+        if (gcode_toolChange == "TOOLCHANGE") {
+            gcode += "; Moved the Tool Change code to next travel point!\n";    
+            gcode_toolChange = "";
+            gcode_toolChange += m_writer.toolchange(extruder_id);
+        } else {
+            gcode += m_writer.toolchange(extruder_id);
+        }
         return gcode;
     }
 
@@ -5822,7 +5866,15 @@ std::string GCode::set_extruder(unsigned int extruder_id, double print_z, bool b
     // We inform the writer about what is happening, but we may not use the resulting gcode.
     std::string toolchange_command = m_writer.toolchange(extruder_id);
     if (! custom_gcode_changes_tool(toolchange_gcode_parsed, m_writer.toolchange_prefix(), extruder_id))
-        gcode += toolchange_command;
+        // Edmond
+        if (gcode_toolChange == "TOOLCHANGE") {
+            gcode += "; Moved the Tool Change code to next travel point!\n";
+            gcode_toolChange = "";
+            gcode_toolChange += m_writer.toolchange(extruder_id);
+        } else {
+            gcode += toolchange_command;
+        }
+        //gcode += toolchange_command;
     else {
         // user provided his own toolchange gcode, no need to do anything
     }
