@@ -43,11 +43,6 @@ jobs:
         if: inputs.os == 'windows-latest'
         uses: microsoft/setup-msbuild@v1.1
 
-      - name: Get the date on Ubuntu and macOS
-        if: inputs.os != 'windows-latest'
-        run: echo "date=$(date +'%Y%m%d')" >> $GITHUB_ENV
-        shell: bash
-        
       - name: Get the date on Windows
         if: inputs.os == 'windows-latest'
         run: echo "date=$(Get-Date -Format 'yyyyMMdd')" | Out-File -Append -FilePath $env:GITHUB_ENV -Encoding utf8
