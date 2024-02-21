@@ -126,7 +126,8 @@ std::string GCodeWriter::set_temperature(unsigned int temperature, bool wait, in
         if (FLAVOR_IS(gcfRepRapFirmware)) {
             gcode << " P" << tool;
         } else if (FLAVOR_IS(gcfKlipper)) { //Edmond
-            gcode << "TOOL=" << tool << " CHNG_STATE=2"; //Edmond
+            //gcode << "TOOL=" << tool << " CHNG_STATE=2"; //Edmond
+            gcode << "TOOL=" << tool; //Edmond
         } else {
             gcode << " T" << tool;
         }
