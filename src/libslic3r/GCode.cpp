@@ -3645,6 +3645,7 @@ LayerResult GCode::process_layer(
             int temperature = print.config().nozzle_temperature.get_at(extruder.id());
             if (temperature > 0 && temperature != print.config().nozzle_temperature_initial_layer.get_at(extruder.id()))
                 //gcode += m_writer.set_temperature(temperature, false, extruder.id());
+                gcode += "; Set the 2nd layer+ temperature\n";
                 gcode += m_writer.set_temperature(temperature, false, 0);
                 gcode += m_writer.set_temperature(temperature, false, 1);
                 gcode += m_writer.set_temperature(temperature, false, 2);
