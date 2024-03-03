@@ -823,7 +823,8 @@ std::string GCodeWriter::set_fan(const GCodeFlavor gcode_flavor, unsigned int sp
         case gcfSailfish:
             gcode << "M127";    break;
         default:
-            gcode << "M106 S0";    break;
+            //gcode << "M106 S0";    break;
+            gcode << "M400\nM106 S0";    break; //Edmond
         }
         if (GCodeWriter::full_gcode_comment)
             gcode << " ; disable fan";
@@ -837,7 +838,8 @@ std::string GCodeWriter::set_fan(const GCodeFlavor gcode_flavor, unsigned int sp
         case gcfMachinekit:
             gcode << "M106 P" << static_cast<unsigned int>(255.5 * speed / 100.0); break;
         default:
-            gcode << "M106 S" << static_cast<unsigned int>(255.5 * speed / 100.0); break;
+            //gcode << "M106 S" << static_cast<unsigned int>(255.5 * speed / 100.0); break;
+            gcode << "M400\nM106 S" << static_cast<unsigned int>(255.5 * speed / 100.0); break; //Edmond
         }
         if (GCodeWriter::full_gcode_comment) 
             gcode << " ; enable fan";
