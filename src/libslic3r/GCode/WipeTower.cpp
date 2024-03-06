@@ -478,8 +478,7 @@ public:
 		if (speed == 0)
 			m_gcode += "M107\n";
         else
-            //m_gcode += "M106 S" + std::to_string(unsigned(255.0 * speed / 100.0)) + "\n";
-            m_gcode += "M400\nM106 S" + std::to_string(unsigned(255.0 * speed / 100.0)) + "\n"; //Edmond
+            m_gcode += "M106 S" + std::to_string(unsigned(255.0 * speed / 100.0)) + "\n";
 		m_last_fan_speed = speed;
 		return *this;
 	}
