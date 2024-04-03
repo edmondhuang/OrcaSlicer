@@ -5787,6 +5787,10 @@ std::string GCode::travel_to(const Point& point, ExtrusionRole role, std::string
                 const auto& dest2d = this->point_to_gcode(travel.points.back());
                 Vec3d dest3d(dest2d(0), dest2d(1), z == DBL_MAX ? m_nominal_z : z);
                 gcode += m_writer.travel_to_xyz(dest3d, comment + " travel_to_xyz");
+                if (!gcode_toolChange.empty() && gcode_toolChange != "TOOLCHANGE") {
+                    gcode += gcode_toolChange;
+                    gcode_toolChange = "";
+                }
             } else {
                 // Extra movements emitted by avoid_crossing_perimeters, lift the z to normal height at the beginning, then apply the z
                 // ratio at the last point
