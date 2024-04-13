@@ -808,7 +808,7 @@ WipeTower::ToolChangeResult WipeTower2::tool_change(size_t tool)
 		.set_initial_tool(m_current_tool)
         .set_y_shift(m_y_shift + (tool!=(unsigned int)(-1) && (m_current_shape == SHAPE_REVERSED) ? m_layer_info->depth - m_layer_info->toolchanges_depth(): 0.f))
 		.append(";--------------------\n"
-				"; CP TOOLCHANGE START\n")
+				"; CP TOOLCHANGE START WipeTower2\n")
 		.comment_with_value(" toolchange #", m_num_tool_changes + 1); // the number is zero-based
 
     if (tool != (unsigned)(-1))
