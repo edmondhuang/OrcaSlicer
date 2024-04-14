@@ -137,6 +137,8 @@ public:
 	const std::vector<WipeTower::Extrusion>& extrusions() const { return m_extrusions; }
 	float                x()     const { return m_current_pos.x(); }
 	float                y()     const { return m_current_pos.y(); }
+	float                z()     const { return m_current_z; }
+	float                f()     const { return m_current_feedrate; }
 	const Vec2f& 		 pos()   const { return m_current_pos; }
 	const Vec2f	 		 start_pos_rotated() const { return m_start_pos; }
 	const Vec2f  		 pos_rotated() const { return this->rotate(m_current_pos); }
@@ -1051,8 +1053,7 @@ void WipeTower2::toolchange_Change(
 //    if (f != 0 && f != m_current_feedrate)
 //        m_gcode += set_format_F(f);
 //    m_gcode += "\n";
-    writer.append(std::string("@ G1 Z") + Slic3r::float_to_string_decimal_point(writer.m_current_z)+ +  " F"  + Slic3r::float_to_string_decimal_point(writer.m_current_feedrate) + "\n");
-    writer.append(std::string("# G1") + set_format_Z(writer.m_current_z) + set_format_F(writer.m_current_feedrate) + "\n");
+    writer.append(std::string("G1 Z") + Slic3r::float_to_string_decimal_point(writer.z())+ +  " F"  + Slic3r::float_to_string_decimal_point(writer.f()) + "\n");
 
 //    writer.m_gcode += std::string("$ G1") + set_format_Z(writer.m_current_z);
 //    if (f != 0 && f != writer.m_current_feedrate)
