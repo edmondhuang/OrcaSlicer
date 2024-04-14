@@ -6042,7 +6042,10 @@ std::string GCode::set_extruder(unsigned int extruder_id, double print_z, bool b
             gcode += toolchange_command;
             gcode_toolChange = "";
             gcode_toolChange += "; Resume the Z position after XY!\n";
-            gcode_toolChange += "G1 Z" + print_z + "\n";
+            gcode_toolChange += "G1 Z" + Slic3r::float_to_string_decimal_point(print_z) + "\n";
+//            std::string comment;
+//            comment = "; Resume the Z position after XY!";
+//            m_writer.travel_to_z(z, comment);
         } else {
             gcode += m_writer.toolchange(extruder_id);
         }
@@ -6214,7 +6217,10 @@ std::string GCode::set_extruder(unsigned int extruder_id, double print_z, bool b
             gcode += toolchange_command;
             gcode_toolChange = "";
             gcode_toolChange += "; Resume the Z position after XY!\n";
-            gcode_toolChange += "G1 Z" + print_z + "\n";
+            gcode_toolChange += "G1 Z" + Slic3r::float_to_string_decimal_point(print_z) + "\n";
+//            std::string comment;
+//            comment = "; Resume the Z position after XY!";
+//            m_writer.travel_to_z(z, comment);
         } else {
             gcode += toolchange_command;
         }
