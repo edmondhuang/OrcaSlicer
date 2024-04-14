@@ -1048,6 +1048,7 @@ void WipeTower2::toolchange_Change(
     writer.feedrate(m_travel_speed * 60.f) // see https://github.com/prusa3d/PrusaSlicer/issues/5483
           .append(std::string("G1 X") + Slic3r::float_to_string_decimal_point(current_pos.x())
                              +  " Y"  + Slic3r::float_to_string_decimal_point(current_pos.y())
+                             + std::string("G1 Z") + Slic3r::float_to_string_decimal_point(writer.z())+ +  " F"  + Slic3r::float_to_string_decimal_point(writer.f()) + "\n"
                              + never_skip_tag() + "\n");
 //    m_gcode += std::string("G1") + set_format_Z(m_current_z);
 //    if (f != 0 && f != m_current_feedrate)
