@@ -1041,20 +1041,24 @@ void WipeTower2::toolchange_Change(
     // gcode could have left the extruder somewhere, we cannot just start extruding. We should also inform the
     // postprocessor that we absolutely want to have this in the gcode, even if it thought it is the same as before.
     Vec2f current_pos = writer.pos_rotated();
+    writer.append(";GGGGGGGGGG1-1\n");
     writer.feedrate(m_travel_speed * 60.f) // see https://github.com/prusa3d/PrusaSlicer/issues/5483
           .append(std::string("G1 X") + Slic3r::float_to_string_decimal_point(current_pos.x())
                              +  " Y"  + Slic3r::float_to_string_decimal_point(current_pos.y())
                              + never_skip_tag() + "\n");
+    writer.append(";GGGGGGGGGG1-2\n");
     writer.append("[deretraction_from_wipe_tower_generator]");
 
      // Orca TODO: handle multi extruders
     // The toolchange Tn command will be inserted later, only in case that the user does
     // not provide a custom toolchange gcode.
 	writer.set_tool(new_tool); // This outputs nothing, the writer just needs to know the tool has changed.
+    writer.append(";GGGGGGGGGG1-3\n");
     // writer.append("[filament_start_gcode]\n");
 
 
 	writer.flush_planner_queue();
+    writer.append(";GGGGGGGGGG1-4\n");
 	m_current_tool = new_tool;
 }
 
