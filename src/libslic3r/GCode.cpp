@@ -6039,9 +6039,10 @@ std::string GCode::set_extruder(unsigned int extruder_id, double print_z, bool b
         // gcode += m_writer.toolchange(extruder_id);
         // Edmond
         if (gcode_toolChange == "TOOLCHANGE") {
-            gcode += "; Moved the Tool Change code to next travel point!\n";    
+            gcode += toolchange_command;
             gcode_toolChange = "";
-            gcode_toolChange += m_writer.toolchange(extruder_id);
+            gcode_toolChange += "; Resume the Z position after XY!\n";
+            gcode_toolChange += "G1 Z" + print_z + "\n";
         } else {
             gcode += m_writer.toolchange(extruder_id);
         }
@@ -6210,9 +6211,10 @@ std::string GCode::set_extruder(unsigned int extruder_id, double print_z, bool b
     if (! custom_gcode_changes_tool(toolchange_gcode_parsed, m_writer.toolchange_prefix(), extruder_id))
         // Edmond
         if (gcode_toolChange == "TOOLCHANGE") {
-            gcode += "; Moved the Tool Change code to next travel point!\n";
+            gcode += toolchange_command;
             gcode_toolChange = "";
-            gcode_toolChange += m_writer.toolchange(extruder_id);
+            gcode_toolChange += "; Resume the Z position after XY!\n";
+            gcode_toolChange += "G1 Z" + print_z + "\n";
         } else {
             gcode += toolchange_command;
         }
