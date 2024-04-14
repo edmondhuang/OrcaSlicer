@@ -829,8 +829,11 @@ WipeTower::ToolChangeResult WipeTower2::tool_change(size_t tool)
     if (tool != (unsigned int)-1){ 			// This is not the last change.
         toolchange_Unload(writer, cleaning_box, m_filpar[m_current_tool].material,
                           is_first_layer() ? m_filpar[tool].first_layer_temperature : m_filpar[tool].temperature, tool); //Edmond
+        writer.append(";GGGGGGGGGG1\n");
         toolchange_Change(writer, tool, m_filpar[tool].material); // Change the tool, set a speed override for soluble and flex materials.
+        writer.append(";GGGGGGGGGG2\n");
         toolchange_Load(writer, cleaning_box);
+        writer.append(";GGGGGGGGGG3\n");
         writer.travel(writer.x(), writer.y()-m_perimeter_width); // cooling and loading were done a bit down the road
         writer.append(";GGGGGGGGGG\n");
         toolchange_Wipe(writer, cleaning_box, wipe_volume);     // Wipe the newly loaded filament until the end of the assigned wipe area.
