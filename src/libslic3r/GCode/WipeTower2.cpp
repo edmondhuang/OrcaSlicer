@@ -1051,13 +1051,13 @@ void WipeTower2::toolchange_Change(
 //    if (f != 0 && f != m_current_feedrate)
 //        m_gcode += set_format_F(f);
 //    m_gcode += "\n";
-    writer.append(std::string("@ G1 Z") + Slic3r::float_to_string_decimal_point(m_current_z)+ +  " F"  + Slic3r::float_to_string_decimal_point(m_current_feedrate) + "\n");
-    writer.append(std::string("# G1") + set_format_Z(m_current_z) + set_format_F(m_current_feedrate) + "\n");
+    writer.append(std::string("@ G1 Z") + Slic3r::float_to_string_decimal_point(writer.m_current_z)+ +  " F"  + Slic3r::float_to_string_decimal_point(writer.m_current_feedrate) + "\n");
+    writer.append(std::string("# G1") + set_format_Z(writer.m_current_z) + set_format_F(writer.m_current_feedrate) + "\n");
 
-    m_gcode += std::string("$ G1") + set_format_Z(m_current_z);
-    if (f != 0 && f != m_current_feedrate)
-        m_gcode += set_format_F(f);
-    m_gcode += "\n";
+//    writer.m_gcode += std::string("$ G1") + set_format_Z(writer.m_current_z);
+//    if (f != 0 && f != writer.m_current_feedrate)
+//        writer.m_gcode += set_format_F(f);
+//    writer.m_gcode += "\n";
 
     writer.append(";GGGGGGGGGG1-2\n");
     writer.append("[deretraction_from_wipe_tower_generator]");
