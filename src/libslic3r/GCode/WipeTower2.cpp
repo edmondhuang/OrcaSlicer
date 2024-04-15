@@ -126,10 +126,10 @@ public:
 
 	WipeTowerWriter2& 			 feedrate(float f)
 	{
-        if (f != m_current_feedrate) {
+//        if (f != m_current_feedrate) {
 			m_gcode += "G1" + set_format_F(f) + "\n";
             m_current_feedrate = f;
-        }
+//        }
 		return *this;
 	}
 
