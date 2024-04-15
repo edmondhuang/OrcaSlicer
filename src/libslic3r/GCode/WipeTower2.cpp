@@ -126,10 +126,10 @@ public:
 
 	WipeTowerWriter2& 			 feedrate(float f)
 	{
-//        if (f != m_current_feedrate) {
+        if (f != m_current_feedrate) {
 			m_gcode += "G1" + set_format_F(f) + "\n";
             m_current_feedrate = f;
-//        }
+        }
 		return *this;
 	}
 
@@ -831,14 +831,15 @@ WipeTower::ToolChangeResult WipeTower2::tool_change(size_t tool)
     if (tool != (unsigned int)-1){ 			// This is not the last change.
         toolchange_Unload(writer, cleaning_box, m_filpar[m_current_tool].material,
                           is_first_layer() ? m_filpar[tool].first_layer_temperature : m_filpar[tool].temperature, tool); //Edmond
-//        writer.append(";GGGGGGGGGG1\n");
+        writer.append(";GGGGGGGGGG1\n");
         toolchange_Change(writer, tool, m_filpar[tool].material); // Change the tool, set a speed override for soluble and flex materials.
-//        writer.append(";GGGGGGGGGG2\n");
+        writer.append(";GGGGGGGGGG2\n");
         toolchange_Load(writer, cleaning_box);
-//        writer.append(";GGGGGGGGGG3\n");
+        writer.append(";GGGGGGGGGG3\n");
         writer.travel(writer.x(), writer.y()-m_perimeter_width); // cooling and loading were done a bit down the road
-//        writer.append(";GGGGGGGGGG\n");
+        writer.append(";GGGGGGGGGG4\n");
         toolchange_Wipe(writer, cleaning_box, wipe_volume);     // Wipe the newly loaded filament until the end of the assigned wipe area.
+        writer.append(";GGGGGGGGGG5\n");
         ++ m_num_tool_changes;
     } else
         toolchange_Unload(writer, cleaning_box, m_filpar[m_current_tool].material, m_filpar[m_current_tool].temperature, tool); //Edmond
@@ -1043,10 +1044,12 @@ void WipeTower2::toolchange_Change(
     // gcode could have left the extruder somewhere, we cannot just start extruding. We should also inform the
     // postprocessor that we absolutely want to have this in the gcode, even if it thought it is the same as before.
     Vec2f current_pos = writer.pos_rotated();
-//    writer.append(";GGGGGGGGGG1-1\n");
+    writer.append(";GGGGGGGGGG1-1\n");
 
+    writer.append("G1 F"  + Slic3r::float_to_string_decimal_point(writer.f()) + "\n");
+    writer.append(";GGGGGGGGGG1-2\n");
     writer.feedrate(m_travel_speed * 60.f) // see https://github.com/prusa3d/PrusaSlicer/issues/5483
-          .append(std::string("G1 Z") + Slic3r::float_to_string_decimal_point(writer.z()) + "\n")
+          .append(std::string("G1 Z") + Slic3r::float_to_string_decimal_point(writer.z())+ " F"  + Slic3r::float_to_string_decimal_point(writer.f()) + "\n")
           .append(std::string("G1 X") + Slic3r::float_to_string_decimal_point(current_pos.x())
                              +  " Y"  + Slic3r::float_to_string_decimal_point(current_pos.y())
                              + never_skip_tag() + "\n");
@@ -1061,20 +1064,21 @@ void WipeTower2::toolchange_Change(
 //        writer.m_gcode += set_format_F(f);
 //    writer.m_gcode += "\n";
 
-//    writer.append(";GGGGGGGGGG1-2\n");
+    writer.append(";GGGGGGGGGG1-4\n");
     writer.append("[deretraction_from_wipe_tower_generator]");
-
+    writer.append(";GGGGGGGGGG1-5\n");
      // Orca TODO: handle multi extruders
     // The toolchange Tn command will be inserted later, only in case that the user does
     // not provide a custom toolchange gcode.
 	writer.set_tool(new_tool); // This outputs nothing, the writer just needs to know the tool has changed.
-//    writer.append(";GGGGGGGGGG1-3\n");
+    writer.append(";GGGGGGGGGG1-5\n");
     // writer.append("[filament_start_gcode]\n");
 
 
 	writer.flush_planner_queue();
-//    writer.append(";GGGGGGGGGG1-4\n");
+    writer.append(";GGGGGGGGGG1-6\n");
 	m_current_tool = new_tool;
+    writer.append(";GGGGGGGGGG1-7\n");
 }
 
 void WipeTower2::toolchange_Load(
