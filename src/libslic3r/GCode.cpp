@@ -6036,18 +6036,15 @@ std::string GCode::set_extruder(unsigned int extruder_id, double print_z, bool b
             gcode += m_writer.set_pressure_advance(m_config.pressure_advance.get_at(extruder_id));
         }
 
-        // gcode += m_writer.toolchange(extruder_id);
+         gcode += m_writer.toolchange(extruder_id);
         // Edmond
         if (gcode_toolChange == "TOOLCHANGE") {
-            gcode += toolchange_command;
             gcode_toolChange = "";
             gcode_toolChange += "; Resume the Z position after XY!\n";
             gcode_toolChange += "G1 Z" + Slic3r::float_to_string_decimal_point(print_z) + "\n";
 //            std::string comment;
 //            comment = "; Resume the Z position after XY!";
 //            m_writer.travel_to_z(z, comment);
-        } else {
-            gcode += m_writer.toolchange(extruder_id);
         }
         return gcode;
     }
@@ -6213,16 +6210,14 @@ std::string GCode::set_extruder(unsigned int extruder_id, double print_z, bool b
     std::string toolchange_command = m_writer.toolchange(extruder_id);
     if (! custom_gcode_changes_tool(toolchange_gcode_parsed, m_writer.toolchange_prefix(), extruder_id))
         // Edmond
+        gcode += toolchange_command;
         if (gcode_toolChange == "TOOLCHANGE") {
-            gcode += toolchange_command;
             gcode_toolChange = "";
             gcode_toolChange += "; Resume the Z position after XY!\n";
             gcode_toolChange += "G1 Z" + Slic3r::float_to_string_decimal_point(print_z) + "\n";
 //            std::string comment;
 //            comment = "; Resume the Z position after XY!";
 //            m_writer.travel_to_z(z, comment);
-        } else {
-            gcode += toolchange_command;
         }
         //gcode += toolchange_command;
     else {
