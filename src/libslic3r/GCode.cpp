@@ -6035,8 +6035,8 @@ std::string GCode::set_extruder(unsigned int extruder_id, double print_z, bool b
         if (m_config.enable_pressure_advance.get_at(extruder_id)) {
             gcode += m_writer.set_pressure_advance(m_config.pressure_advance.get_at(extruder_id));
         }
-
-         gcode += m_writer.toolchange(extruder_id);
+        gcode += "G1 F" + writer().config.travel_speed.value + "\n";
+        gcode += m_writer.toolchange(extruder_id);
         // Edmond
         if (gcode_toolChange == "TOOLCHANGE") {
             gcode_toolChange = "";
@@ -6244,6 +6244,8 @@ std::string GCode::set_extruder(unsigned int extruder_id, double print_z, bool b
     // Set the new extruder to the operating temperature.
     if (m_ooze_prevention.enable)
         gcode += m_ooze_prevention.post_toolchange(*this);
+
+    gcode += "G1 F" + writer().config.travel_speed.value + "\n";
 
     if (m_config.enable_pressure_advance.get_at(extruder_id)) {
         gcode += m_writer.set_pressure_advance(m_config.pressure_advance.get_at(extruder_id));
