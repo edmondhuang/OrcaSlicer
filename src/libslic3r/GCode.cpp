@@ -5787,7 +5787,7 @@ std::string GCode::travel_to(const Point& point, ExtrusionRole role, std::string
                 const auto& dest2d = this->point_to_gcode(travel.points.back());
                 Vec3d dest3d(dest2d(0), dest2d(1), z == DBL_MAX ? m_nominal_z : z);
                 gcode += m_writer.travel_to_xyz(dest3d, comment + " travel_to_xyz");
-                if (!gcode_toolChange.empty() && gcode_toolChange != "TOOLCHANGE") {
+                if (!gcode_toolChange.empty() && gcode_toolChange != "TOOLCHANGE" && gcode_toolChange != "") {
                     gcode += gcode_toolChange;
                     gcode_toolChange = "";
                 }
@@ -5809,7 +5809,7 @@ std::string GCode::travel_to(const Point& point, ExtrusionRole role, std::string
                         // For all points in between, no z change
                         gcode += m_writer.travel_to_xy(this->point_to_gcode(travel.points[i]), comment + " travel_to_xy");
                     }
-                    if (!gcode_toolChange.empty() && gcode_toolChange != "TOOLCHANGE") {
+                    if (!gcode_toolChange.empty() && gcode_toolChange != "TOOLCHANGE" && gcode_toolChange != "") {
                         gcode += gcode_toolChange;
                         gcode_toolChange = "";
                     }
@@ -6035,13 +6035,13 @@ std::string GCode::set_extruder(unsigned int extruder_id, double print_z, bool b
         if (m_config.enable_pressure_advance.get_at(extruder_id)) {
             gcode += m_writer.set_pressure_advance(m_config.pressure_advance.get_at(extruder_id));
         }
-        gcode += "G1 F30000\n";
+        //gcode += "G1 F30000\n";
         gcode += m_writer.toolchange(extruder_id);
         // Edmond
         if (gcode_toolChange == "TOOLCHANGE") {
             gcode_toolChange = "";
-            gcode_toolChange += "; Resume the Z position after XY!\n";
-            gcode_toolChange += "G1 Z" + Slic3r::float_to_string_decimal_point(print_z) + "\n";
+            //gcode_toolChange += "; Resume the Z position after XY!\n";
+            //gcode_toolChange += "G1 Z" + Slic3r::float_to_string_decimal_point(print_z) + "\n";
 //            std::string comment;
 //            comment = "; Resume the Z position after XY!";
 //            m_writer.travel_to_z(z, comment);
@@ -6213,8 +6213,8 @@ std::string GCode::set_extruder(unsigned int extruder_id, double print_z, bool b
         gcode += toolchange_command;
         if (gcode_toolChange == "TOOLCHANGE") {
             gcode_toolChange = "";
-            gcode_toolChange += "; Resume the Z position after XY!\n";
-            gcode_toolChange += "G1 Z" + Slic3r::float_to_string_decimal_point(print_z) + "\n";
+            //gcode_toolChange += "; Resume the Z position after XY!\n";
+            //gcode_toolChange += "G1 Z" + Slic3r::float_to_string_decimal_point(print_z) + "\n";
 //            std::string comment;
 //            comment = "; Resume the Z position after XY!";
 //            m_writer.travel_to_z(z, comment);
@@ -6245,7 +6245,7 @@ std::string GCode::set_extruder(unsigned int extruder_id, double print_z, bool b
     if (m_ooze_prevention.enable)
         gcode += m_ooze_prevention.post_toolchange(*this);
 
-    gcode += "G1 F30000\n";
+    //gcode += "G1 F30000\n";
 
     if (m_config.enable_pressure_advance.get_at(extruder_id)) {
         gcode += m_writer.set_pressure_advance(m_config.pressure_advance.get_at(extruder_id));

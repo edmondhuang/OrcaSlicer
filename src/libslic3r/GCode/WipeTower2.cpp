@@ -1047,7 +1047,7 @@ void WipeTower2::toolchange_Change(
     Vec2f current_pos = writer.pos_rotated();
     //writer.append(";GGGGGGGGGG1-2\n");
     writer.feedrate(m_travel_speed * 60.f) // see https://github.com/prusa3d/PrusaSlicer/issues/5483
-          .append(std::string("G1 Z") + Slic3r::float_to_string_decimal_point(writer.z()) + "\n")
+          //.append(std::string("G1 Z") + Slic3r::float_to_string_decimal_point(writer.z()) + "\n")
           .append(std::string("G1 X") + Slic3r::float_to_string_decimal_point(current_pos.x())
                              +  " Y"  + Slic3r::float_to_string_decimal_point(current_pos.y())
                              + never_skip_tag() + "\n");
