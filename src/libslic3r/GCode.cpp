@@ -6027,6 +6027,7 @@ std::string GCode::set_extruder(unsigned int extruder_id, double print_z, bool b
         std::string gcode;
         // Append the filament start G-code.
         const std::string &filament_start_gcode = m_config.filament_start_gcode.get_at(extruder_id);
+        gcode += "G1 Z" + Slic3r::float_to_string_decimal_point(print_z) + "\n";
         if (! filament_start_gcode.empty()) {
             // Process the filament_start_gcode for the filament.
             gcode += this->placeholder_parser_process("filament_start_gcode", filament_start_gcode, extruder_id);
@@ -6234,6 +6235,7 @@ std::string GCode::set_extruder(unsigned int extruder_id, double print_z, bool b
 
     this->placeholder_parser().set("current_extruder", extruder_id);
 
+    gcode += "G1 Z" + Slic3r::float_to_string_decimal_point(print_z) + "\n";
     // Append the filament start G-code.
     const std::string &filament_start_gcode = m_config.filament_start_gcode.get_at(extruder_id);
     if (! filament_start_gcode.empty()) {
