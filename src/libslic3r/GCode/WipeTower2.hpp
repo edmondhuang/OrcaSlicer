@@ -167,7 +167,7 @@ private:
     }
 
 
-	bool   m_semm               = true; // Are we using a single extruder multimaterial printer?
+	bool   m_semm               = false; // Are we using a single extruder multimaterial printer? //Edmond
 	bool   m_enable_filament_ramming = true;
     Vec2f  m_wipe_tower_pos; 			// Left front corner of the wipe tower in mm.
 	float  m_wipe_tower_width; 			// Width of the wipe tower.
@@ -299,7 +299,8 @@ private:
 		WipeTowerWriter2 &writer,
 		const WipeTower::box_coordinates  &cleaning_box, 
 		const std::string&	 	current_material,
-		const int 				new_temperature);
+		const int 				new_temperature,
+		size_t tool);
 
 	void toolchange_Change(
 		WipeTowerWriter2 &writer,
