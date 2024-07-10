@@ -133,6 +133,8 @@ public:
 	const std::vector<WipeTower::Extrusion>& extrusions() const { return m_extrusions; }
 	float                x()     const { return m_current_pos.x(); }
 	float                y()     const { return m_current_pos.y(); }
+	float                z()     const { return m_current_z; }
+	float                f()     const { return m_current_feedrate; }
 	const Vec2f& 		 pos()   const { return m_current_pos; }
 	const Vec2f	 		 start_pos_rotated() const { return m_start_pos; }
 	const Vec2f  		 pos_rotated() const { return this->rotate(m_current_pos); }
@@ -331,8 +333,11 @@ public:
 	}
 
 	// Set extruder temperature, don't wait by default.
-	WipeTowerWriter2& set_extruder_temp(int temperature, bool wait = false)
+	WipeTowerWriter2& set_extruder_temp(int temperature, bool wait = false, size_t tool = -1) //Edmond
 	{
+        if (m_gcode_flavor == gcfKlipper)
+            m_gcode += "SET_TOOL_TEMPERATURE TOOL=" + std::to_string(tool) + " CHNG_STATE=2" + "\n"; //Edmond
+        else
         m_gcode += "M" + std::to_string(wait ? 109 : 104) + " S" + std::to_string(temperature) + "\n";
         return *this;
     }
@@ -730,7 +735,7 @@ std::vector<WipeTower::ToolChangeResult> WipeTower2::prime(
             toolchange_Wipe(writer, cleaning_box , 20.f);
             WipeTower::box_coordinates box = cleaning_box;
             box.translate(0.f, writer.y() - cleaning_box.ld.y() + m_perimeter_width);
-            toolchange_Unload(writer, box , m_filpar[m_current_tool].material, m_filpar[tools[idx_tool + 1]].first_layer_temperature);
+            toolchange_Unload(writer, box , m_filpar[m_current_tool].material, m_filpar[tools[idx_tool + 1]].first_layer_temperature, tools[idx_tool + 1]); //Edmond
             cleaning_box.translate(prime_section_width, 0.f);
             writer.travel(cleaning_box.ld, 7200);
         }
@@ -797,7 +802,7 @@ WipeTower::ToolChangeResult WipeTower2::tool_change(size_t tool)
 		.set_initial_tool(m_current_tool)
         .set_y_shift(m_y_shift + (tool!=(unsigned int)(-1) && (m_current_shape == SHAPE_REVERSED) ? m_layer_info->depth - m_layer_info->toolchanges_depth(): 0.f))
 		.append(";--------------------\n"
-				"; CP TOOLCHANGE START\n")
+				"; CP TOOLCHANGE START WipeTower2\n")
 		.comment_with_value(" toolchange #", m_num_tool_changes + 1); // the number is zero-based
 
     if (tool != (unsigned)(-1)){
@@ -819,7 +824,7 @@ WipeTower::ToolChangeResult WipeTower2::tool_change(size_t tool)
     // Ram the hot material out of the melt zone, retract the filament into the cooling tubes and let it cool.
     if (tool != (unsigned int)-1){ 			// This is not the last change.
         toolchange_Unload(writer, cleaning_box, m_filpar[m_current_tool].material,
-                          is_first_layer() ? m_filpar[tool].first_layer_temperature : m_filpar[tool].temperature);
+                          is_first_layer() ? m_filpar[tool].first_layer_temperature : m_filpar[tool].temperature, tool); //Edmond
         toolchange_Change(writer, tool, m_filpar[tool].material); // Change the tool, set a speed override for soluble and flex materials.
         toolchange_Load(writer, cleaning_box);
         writer.travel(writer.x(), writer.y()-m_perimeter_width); // cooling and loading were done a bit down the road
@@ -827,7 +832,7 @@ WipeTower::ToolChangeResult WipeTower2::tool_change(size_t tool)
         writer.append(";" + GCodeProcessor::reserved_tag(GCodeProcessor::ETags::Wipe_Tower_End) + "\n");
         ++ m_num_tool_changes;
     } else
-        toolchange_Unload(writer, cleaning_box, m_filpar[m_current_tool].material, m_filpar[m_current_tool].temperature);
+        toolchange_Unload(writer, cleaning_box, m_filpar[m_current_tool].material, m_filpar[m_current_tool].temperature, tool); //Edmond
 
     m_depth_traversed += wipe_area;
 
@@ -854,7 +859,8 @@ void WipeTower2::toolchange_Unload(
 	WipeTowerWriter2 &writer,
 	const WipeTower::box_coordinates 	&cleaning_box,
 	const std::string&		 current_material,
-	const int 				 new_temperature)
+	const int 				 new_temperature,
+    size_t tool) //Edmond
 {
 	float xl = cleaning_box.ld.x() + 1.f * m_perimeter_width;
 	float xr = cleaning_box.rd.x() - 1.f * m_perimeter_width;
@@ -957,10 +963,11 @@ void WipeTower2::toolchange_Unload(
     // be already set and there is no need to change anything. Also, the temperature could be changed
     // for wrong extruder.
     if (m_semm) {
-        if (new_temperature != 0 && (new_temperature != m_old_temperature || is_first_layer()) ) { 	// Set the extruder temperature, but don't wait.
+        // if (new_temperature != 0 && (new_temperature != m_old_temperature || is_first_layer()) ) { 	// Set the extruder temperature, but don't wait. //Edmond
+        if (new_temperature != 0  && tool != (unsigned)(-1)) { 	// Set the extruder temperature, but don't wait. //Edmond
             // If the required temperature is the same as last time, don't emit the M104 again (if user adjusted the value, it would be reset)
             // However, always change temperatures on the first layer (this is to avoid issues with priming lines turned off).
-            writer.set_extruder_temp(new_temperature, false);
+            writer.set_extruder_temp(new_temperature, false, tool); //Edmond
             m_old_temperature = new_temperature;
         }
     }

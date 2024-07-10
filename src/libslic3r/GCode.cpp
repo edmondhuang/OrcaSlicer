@@ -3768,8 +3768,13 @@ LayerResult GCode::process_layer(
                 // In single extruder multi material mode, set the temperature for the current extruder only.
                 continue;
             int temperature = print.config().nozzle_temperature.get_at(extruder.id());
-            if (temperature > 0 && temperature != print.config().nozzle_temperature_initial_layer.get_at(extruder.id()))
-                gcode += m_writer.set_temperature(temperature, false, extruder.id());
+            if (temperature > 0 && temperature != print.config().nozzle_temperature_initial_layer.get_at(extruder.id())) { //Edmond
+                gcode += "; Set the 2nd layer+ temperature\n";
+                gcode += m_writer.set_temperature(temperature, false, 0);
+                gcode += m_writer.set_temperature(temperature, false, 1);
+                gcode += m_writer.set_temperature(temperature, false, 2);
+                gcode += m_writer.set_temperature(temperature, false, 3);
+            }
         }
 
         // BBS
@@ -4051,6 +4056,7 @@ LayerResult GCode::process_layer(
                 gcode += m_wipe_tower->tool_change(*this, extruder_id, extruder_id == layer_tools.extruders.back());
             }
         } else {
+            gcode_toolChange = "TOOLCHANGE";
             gcode += this->set_extruder(extruder_id, print_z);
         }
 
@@ -5707,17 +5713,38 @@ std::string GCode::travel_to(const Point& point, ExtrusionRole role, std::string
     // Orca: we don't need to optimize the Klipper as only set once
     double jerk_to_set = 0.0;
     unsigned int acceleration_to_set = 0;
+//Edmond
+//    if (this->on_first_layer()) {
+//        if (m_config.default_acceleration.value > 0 && m_config.initial_layer_acceleration.value > 0) {
+//            acceleration_to_set = (unsigned int) floor(m_config.initial_layer_acceleration.value + 0.5);
+//        }
+//        if (m_config.default_jerk.value > 0 && m_config.initial_layer_jerk.value > 0) {
+//            jerk_to_set = m_config.initial_layer_jerk.value;
+//        }
+//    } else {
+//        if (m_config.default_acceleration.value > 0 && m_config.travel_acceleration.value > 0) {
+//            acceleration_to_set = (unsigned int) floor(m_config.travel_acceleration.value + 0.5);
+//        }
+//        if (m_config.default_jerk.value > 0 && m_config.travel_jerk.value > 0) {
+//            jerk_to_set = m_config.travel_jerk.value;
+//        }
+//    }
+    if (m_config.default_acceleration.value > 0 && m_config.travel_acceleration.value > 0) {
+        acceleration_to_set = (unsigned int) floor(m_config.travel_acceleration.value + 0.5);
+    }
     if (this->on_first_layer()) {
-        if (m_config.default_acceleration.value > 0 && m_config.initial_layer_acceleration.value > 0) {
-            acceleration_to_set = (unsigned int) floor(m_config.initial_layer_acceleration.value + 0.5);
-        }
+//Edmond
+//        if (m_config.default_acceleration.value > 0 && m_config.initial_layer_acceleration.value > 0) {
+//            acceleration_to_set = (unsigned int) floor(m_config.initial_layer_acceleration.value + 0.5);
+//        }
         if (m_config.default_jerk.value > 0 && m_config.initial_layer_jerk.value > 0) {
             jerk_to_set = m_config.initial_layer_jerk.value;
         }
     } else {
-        if (m_config.default_acceleration.value > 0 && m_config.travel_acceleration.value > 0) {
-            acceleration_to_set = (unsigned int) floor(m_config.travel_acceleration.value + 0.5);
-        }
+//Edmond
+//        if (m_config.default_acceleration.value > 0 && m_config.travel_acceleration.value > 0) {
+//            acceleration_to_set = (unsigned int) floor(m_config.travel_acceleration.value + 0.5);
+//        }
         if (m_config.default_jerk.value > 0 && m_config.travel_jerk.value > 0) {
             jerk_to_set = m_config.travel_jerk.value;
         }
@@ -5784,6 +5811,10 @@ std::string GCode::travel_to(const Point& point, ExtrusionRole role, std::string
                 const auto& dest2d = this->point_to_gcode(travel.points.back());
                 Vec3d dest3d(dest2d(0), dest2d(1), z == DBL_MAX ? m_nominal_z : z);
                 gcode += m_writer.travel_to_xyz(dest3d, comment + " travel_to_xyz");
+                if (!gcode_toolChange.empty() && gcode_toolChange != "TOOLCHANGE" && gcode_toolChange != "") {
+                    gcode += gcode_toolChange;
+                    gcode_toolChange = "";
+                }
             } else {
                 // Extra movements emitted by avoid_crossing_perimeters, lift the z to normal height at the beginning, then apply the z
                 // ratio at the last point
@@ -5801,6 +5832,10 @@ std::string GCode::travel_to(const Point& point, ExtrusionRole role, std::string
                     } else {
                         // For all points in between, no z change
                         gcode += m_writer.travel_to_xy(this->point_to_gcode(travel.points[i]), comment + " travel_to_xy");
+                    }
+                    if (!gcode_toolChange.empty() && gcode_toolChange != "TOOLCHANGE" && gcode_toolChange != "") {
+                        gcode += gcode_toolChange;
+                        gcode_toolChange = "";
                     }
                 }
             }
@@ -6018,6 +6053,8 @@ std::string GCode::set_extruder(unsigned int extruder_id, double print_z, bool b
         std::string gcode;
         // Append the filament start G-code.
         const std::string &filament_start_gcode = m_config.filament_start_gcode.get_at(extruder_id);
+        if (print_z != 0)
+            gcode += "G1 Z" + Slic3r::float_to_string_decimal_point(print_z) + "\n";
         if (! filament_start_gcode.empty()) {
             // Process the filament_start_gcode for the filament.
             gcode += this->placeholder_parser_process("filament_start_gcode", filament_start_gcode, extruder_id);
@@ -6026,8 +6063,17 @@ std::string GCode::set_extruder(unsigned int extruder_id, double print_z, bool b
         if (m_config.enable_pressure_advance.get_at(extruder_id)) {
             gcode += m_writer.set_pressure_advance(m_config.pressure_advance.get_at(extruder_id));
         }
-
+        //gcode += "G1 F30000\n";
         gcode += m_writer.toolchange(extruder_id);
+        // Edmond
+        if (gcode_toolChange == "TOOLCHANGE") {
+            gcode_toolChange = "";
+            //gcode_toolChange += "; Resume the Z position after XY!\n";
+            //gcode_toolChange += "G1 Z" + Slic3r::float_to_string_decimal_point(print_z) + "\n";
+//            std::string comment;
+//            comment = "; Resume the Z position after XY!";
+//            m_writer.travel_to_z(z, comment);
+        }
         return gcode;
     }
 
@@ -6191,7 +6237,17 @@ std::string GCode::set_extruder(unsigned int extruder_id, double print_z, bool b
     // We inform the writer about what is happening, but we may not use the resulting gcode.
     std::string toolchange_command = m_writer.toolchange(extruder_id);
     if (! custom_gcode_changes_tool(toolchange_gcode_parsed, m_writer.toolchange_prefix(), extruder_id))
+        // Edmond
         gcode += toolchange_command;
+        if (gcode_toolChange == "TOOLCHANGE") {
+            gcode_toolChange = "";
+            //gcode_toolChange += "; Resume the Z position after XY!\n";
+            //gcode_toolChange += "G1 Z" + Slic3r::float_to_string_decimal_point(print_z) + "\n";
+//            std::string comment;
+//            comment = "; Resume the Z position after XY!";
+//            m_writer.travel_to_z(z, comment);
+        }
+        //gcode += toolchange_command;
     else {
         // user provided his own toolchange gcode, no need to do anything
     }
@@ -6208,6 +6264,8 @@ std::string GCode::set_extruder(unsigned int extruder_id, double print_z, bool b
     this->placeholder_parser().set("retraction_distance_when_cut", m_config.retraction_distances_when_cut.get_at(extruder_id));
     this->placeholder_parser().set("long_retraction_when_cut", m_config.long_retractions_when_cut.get_at(extruder_id));
 
+    if (print_z != 0)
+        gcode += "G1 Z" + Slic3r::float_to_string_decimal_point(print_z) + "\n";
     // Append the filament start G-code.
     const std::string &filament_start_gcode = m_config.filament_start_gcode.get_at(extruder_id);
     if (! filament_start_gcode.empty()) {
