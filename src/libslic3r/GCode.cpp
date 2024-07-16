@@ -6031,7 +6031,7 @@ std::string GCode::retract(bool toolchange, bool is_last_retraction, LiftType li
         can_lift = false;
     }
 
-    if (needs_lift && can_lift) {
+    if (needs_lift && can_lift && m_toolchange_count > 1) { //only lift for multiple tools print
         size_t extruder_id = m_writer.extruder()->id();
         gcode += m_writer.lift(!m_spiral_vase ? lift_type : LiftType::NormalLift);
     }
