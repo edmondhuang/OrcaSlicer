@@ -3763,15 +3763,17 @@ LayerResult GCode::process_layer(
 
         // Transition from 1st to 2nd layer. Adjust nozzle temperatures as prescribed by the nozzle dependent
         // nozzle_temperature_initial_layer vs. temperature settings.
-      // Comment and adjust for all extruders //Edmond
-      gcode += "; Set the 2nd layer+ temperature\n"; //Edmond
         for (const Extruder &extruder : m_writer.extruders()) {
-//            if (print.config().single_extruder_multi_material.value && extruder.id() != m_writer.extruder()->id())
-//                // In single extruder multi material mode, set the temperature for the current extruder only.
-//                continue;
+            if (print.config().single_extruder_multi_material.value && extruder.id() != m_writer.extruder()->id())
+                // In single extruder multi material mode, set the temperature for the current extruder only.
+                continue;
             int temperature = print.config().nozzle_temperature.get_at(extruder.id());
             if (temperature > 0 && temperature != print.config().nozzle_temperature_initial_layer.get_at(extruder.id())) { //Edmond
-                gcode += m_writer.set_temperature(temperature, false, extruder.id());
+                gcode += "; Set the 2nd layer+ temperature\n";
+                gcode += m_writer.set_temperature(print.config().nozzle_temperature.get_at(0), false, 0);
+                gcode += m_writer.set_temperature(print.config().nozzle_temperature.get_at(1), false, 1);
+                gcode += m_writer.set_temperature(print.config().nozzle_temperature.get_at(2), false, 2);
+                gcode += m_writer.set_temperature(print.config().nozzle_temperature.get_at(3), false, 3);
             }
         }
 
