@@ -228,6 +228,7 @@ public:
     std::string     set_extruder(unsigned int extruder_id, double print_z, bool by_object=false);
     bool is_BBL_Printer();
 
+    std::string gcode_toolChange; //Edmond
     // SoftFever
     std::string set_object_info(Print* print);
 

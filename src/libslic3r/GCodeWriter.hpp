@@ -143,7 +143,7 @@ public:
 
     //BBS
     unsigned int    m_last_additional_fan_speed;
-    int             m_last_bed_temperature;
+    int             m_last_bed_temperature = -1; //Edmond
     bool            m_last_bed_temperature_reached;
     double          m_lifted;
 

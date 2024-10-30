@@ -104,6 +104,8 @@ std::string GCodeWriter::set_temperature(unsigned int temperature, GCodeFlavor f
     } else {
         if (flavor == gcfRepRapFirmware) { // M104 is deprecated on RepRapFirmware
             code = "G10";
+        } else if (flavor == gcfKlipper) { //Edmond
+            code = "SET_TOOL_TEMPERATURE";
         } else {
             code = "M104";
         }
@@ -112,19 +114,29 @@ std::string GCodeWriter::set_temperature(unsigned int temperature, GCodeFlavor f
     }
 
     std::ostringstream gcode;
-    gcode << code << " ";
+    gcode << code; //Edmond
     if (flavor == gcfMach3 || flavor == gcfMachinekit) {
-        gcode << "P";
+        gcode << " P" << temperature; //Edmond
+    } else if (flavor == gcfKlipper) { //Edmond
+        gcode << " "; //Edmond
     } else {
         gcode << "S";
     }
-    gcode << temperature;
+    // gcode << temperature; //Edmond
     if (tool != -1) {
         if (flavor == gcfRepRapFirmware) {
             gcode << " P" << tool;
+        } else if (flavor == gcfKlipper) { //Edmond
+            //gcode << "TOOL=" << tool << " CHNG_STATE=2"; //Edmond
+            gcode << "TOOL=" << tool << " ACTV_TMP=" << temperature; //Edmond
         } else {
             gcode << " T" << tool;
         }
+    } else if (flavor == gcfKlipper) //Edmond
+    {
+        std::ostringstream oss;
+        oss << "; Klipper firmware, ignore to set the global temperature\n";
+        return oss.str();
     }
     gcode << " ; " << comment << "\n";
 
