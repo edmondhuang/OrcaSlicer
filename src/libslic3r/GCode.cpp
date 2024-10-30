@@ -3777,7 +3777,7 @@ LayerResult GCode::process_layer(
 //            }
 //        }
       gcode += "; Set the 2nd layer+ temperature\n";
-      //gcode += m_writer.set_temperature(m_config.nozzle_temperature.get_at(extruder_id), false, 0);
+      gcode += m_writer.set_temperature(m_config.nozzle_temperature.get_at(0), false, 0);
       gcode += m_writer.set_temperature(m_config.nozzle_temperature.get_at(1), false, 1);
       gcode += m_writer.set_temperature(m_config.nozzle_temperature.get_at(2), false, 2);
       gcode += m_writer.set_temperature(m_config.nozzle_temperature.get_at(3), false, 3);
