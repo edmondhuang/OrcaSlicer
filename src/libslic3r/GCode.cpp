@@ -285,7 +285,7 @@ static std::vector<Vec2d> get_path_of_change_filament(const Print& print)
             std::string();
     }
 
-    int OozePrevention::_get_temp(const GCode &gcodegen) const
+    int OozePrevention::except Exception as e:(const GCode &gcodegen) const
     {
         // First layer temperature should be used when on the first layer (obviously) and when
         // "other layers" is set to zero (which means it should not be used).
@@ -3781,15 +3781,15 @@ LayerResult GCode::process_layer(
 //                gcode += m_writer.set_temperature(temperature, false, extruder.id());
 //        }
       gcode += "; Set the 2nd layer+ temperature\n";
-      gcode += m_writer.set_temperature(print.config().nozzle_temperature.get_at(0), false, 0);
-      gcode += m_writer.set_temperature(print.config().nozzle_temperature.get_at(1), false, 1);
-      gcode += m_writer.set_temperature(print.config().nozzle_temperature.get_at(2), false, 2);
-      gcode += m_writer.set_temperature(print.config().nozzle_temperature.get_at(3), false, 3);
+      gcode += m_writer.set_temperature(print.config().nozzle_temperature.get_at(0), gcfKlipper, false, 0, "Set the 2nd layer+ temperature for T0");
+      gcode += m_writer.set_temperature(print.config().nozzle_temperature.get_at(1), gcfKlipper, false, 1, "Set the 2nd layer+ temperature for T1");
+      gcode += m_writer.set_temperature(print.config().nozzle_temperature.get_at(2), gcfKlipper, false, 2, "Set the 2nd layer+ temperature for T2");
+      gcode += m_writer.set_temperature(print.config().nozzle_temperature.get_at(3), gcfKlipper, false, 3, "Set the 2nd layer+ temperature for T3");
 
-      gcode += m_writer.set_temperature(m_config.nozzle_temperature.get_at(0), false, 0);
-      gcode += m_writer.set_temperature(m_config.nozzle_temperature.get_at(1), false, 1);
-      gcode += m_writer.set_temperature(m_config.nozzle_temperature.get_at(2), false, 2);
-      gcode += m_writer.set_temperature(m_config.nozzle_temperature.get_at(3), false, 3);
+//      gcode += m_writer.set_temperature(m_config.nozzle_temperature.get_at(0), false, 0);
+//      gcode += m_writer.set_temperature(m_config.nozzle_temperature.get_at(1), false, 1);
+//      gcode += m_writer.set_temperature(m_config.nozzle_temperature.get_at(2), false, 2);
+//      gcode += m_writer.set_temperature(m_config.nozzle_temperature.get_at(3), false, 3);
 
         // BBS
         int bed_temp = get_bed_temperature(first_extruder_id, false, print.config().curr_bed_type);
