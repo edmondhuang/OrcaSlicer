@@ -4904,17 +4904,18 @@ void GCodeProcessor::run_post_process()
             ss >> tool_number;
             if (tool_number != -1) {
                 if (tool_number < 0 || (int)m_extruder_temps_config.size() <= tool_number) {
-                    // found an invalid value, clamp it to a valid one
-                    tool_number = std::clamp<int>(0, m_extruder_temps_config.size() - 1, tool_number);
-                    // emit warning
-                    std::string warning = "GCode Post-Processor encountered an invalid toolchange, maybe from a custom gcode:";
-                    warning += "\n> ";
-                    warning += gcode_line;
-                    warning += "Generated M104 lines may be incorrect.";
-                    BOOST_LOG_TRIVIAL(error) << warning;
-                    // Orca todo
-                    if (m_print != nullptr)
-                        m_print->active_step_add_warning(PrintStateBase::WarningLevel::CRITICAL, warning);
+//                    // found an invalid value, clamp it to a valid one
+//                    tool_number = std::clamp<int>(0, m_extruder_temps_config.size() - 1, tool_number);
+//                    // emit warning
+//                    std::string warning = "GCode Post-Processor encountered an invalid toolchange, maybe from a custom gcode:";
+//                    warning += "\n> ";
+//                    warning += gcode_line;
+//                    warning += "Generated M104 lines may be incorrect.";
+//                    BOOST_LOG_TRIVIAL(error) << warning;
+//                    // Orca todo
+//                    if (m_print != nullptr)
+//                        m_print->active_step_add_warning(PrintStateBase::WarningLevel::CRITICAL, warning);
+                    tool_number = -1; //Edmond comment
                 }
             }
             export_lines.insert_lines(
@@ -4945,10 +4946,12 @@ void GCodeProcessor::run_post_process()
                         out += " S" + std::to_string(temperature) + "\n";
                         return out;
                     } else {
-                        std::string comment = "preheat T" + std::to_string(tool_number) +
-                                              " time: " + std::to_string((int) std::round(time_diffs[0])) + "s";
-                        //return GCodeWriter::set_temperature(temperature, this->m_flavor, false, tool_number, comment); //Edmond
-                        return GCodeWriter::set_temperature(0, this->m_flavor, false, tool_number, comment);
+                        if (tool_number != -1) { //Edmond comment
+                            std::string comment = "preheat T" + std::to_string(tool_number) +
+                                                  " time: " + std::to_string((int) std::round(time_diffs[0])) + "s";
+                            // return GCodeWriter::set_temperature(temperature, this->m_flavor, false, tool_number, comment); //Edmond
+                            return GCodeWriter::set_temperature(0, this->m_flavor, false, tool_number, comment);
+                        }
                     }
                 },
                 // line replacer
