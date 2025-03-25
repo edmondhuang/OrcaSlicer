@@ -655,8 +655,8 @@ public:
 	const std::vector<WipeTower::Extrusion>& extrusions() const { return m_extrusions; }
 	float                x()     const { return m_current_pos.x(); }
 	float                y()     const { return m_current_pos.y(); }
-    float                z()     const { return m_current_z; }
-    float                f()     const { return m_current_feedrate; }
+	float                z()     const { return m_current_z; }
+	float                f()     const { return m_current_feedrate; }
 	const Vec2f& 		 pos()   const { return m_current_pos; }
 	const Vec2f	 		 start_pos_rotated() const { return m_start_pos; }
 	const Vec2f  		 pos_rotated() const { return this->rotate(m_current_pos); }
@@ -871,13 +871,13 @@ public:
 	}
 
 	// Set extruder temperature, don't wait by default.
-    WipeTowerWriter2& set_extruder_temp(int temperature, bool wait = false, size_t tool = -1) //Edmond
+	WipeTowerWriter2& set_extruder_temp(int temperature, bool wait = false, size_t tool = -1) //Edmond
 	{
         m_gcode += "G4 S0\n"; // to flush planner queue
         if (m_gcode_flavor == gcfKlipper)
             m_gcode += "SET_TOOL_TEMPERATURE TOOL=" + std::to_string(tool) + " CHNG_STATE=2" + "\n"; //Edmond
         else
-            m_gcode += "M" + std::to_string(wait ? 109 : 104) + " S" + std::to_string(temperature) + "\n";
+        m_gcode += "M" + std::to_string(wait ? 109 : 104) + " S" + std::to_string(temperature) + "\n";
         return *this;
     }
 
@@ -1571,7 +1571,7 @@ void WipeTower2::toolchange_Unload(
 	const WipeTower::box_coordinates 	&cleaning_box,
 	const std::string&		 current_material,
     const int                old_temperature,
-	const int 				 new_temperature),
+	const int 				 new_temperature,
     size_t tool) //Edmond
 {
 	float xl = cleaning_box.ld.x() + 1.f * m_perimeter_width;

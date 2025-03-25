@@ -312,7 +312,7 @@ private:
 		const WipeTower::box_coordinates  &cleaning_box, 
 		const std::string&	 	current_material,
 		const int 				old_temperature,
-		const int 				new_temperature),
+		const int 				new_temperature,
 		size_t tool);
 
 	void toolchange_Change(
