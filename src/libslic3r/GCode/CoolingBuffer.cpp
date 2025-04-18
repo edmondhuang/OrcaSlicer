@@ -19,7 +19,7 @@
 namespace Slic3r {
 
 //CoolingBuffer::CoolingBuffer(GCode &gcodegen) : m_config(gcodegen.config()), m_toolchange_prefix(gcodegen.writer().toolchange_prefix()), m_current_extruder(0)
-CoolingBuffer::CoolingBuffer(GCode &gcodegen) : m_gcodegen(gcodegen), m_config(gcodegen.config()), m_toolchange_prefix(gcodegen.writer().toolchange_prefix()), m_current_extruder(0)
+CoolingBuffer::CoolingBuffer(GCode &gcodegen) : m_gcodegen(gcodegen), m_config(gcodegen.config()), m_toolchange_prefix(gcodegen.writer().toolchange_prefix()), m_current_extruder(0), m_num_extruders(0)
 {
     this->reset(gcodegen.writer().get_position());
 
@@ -793,7 +793,7 @@ std::string CoolingBuffer::apply_layer_cooldown(
 //            if (immediately_apply && m_config.auxiliary_fan.value)
 //                new_gcode += gcodegen.writer().set_additional_fan(m_additional_fan_speed);
             if (immediately_apply && m_config.auxiliary_fan.value)
-                new_gcode += GCodeWriter.writer().set_additional_fan(m_additional_fan_speed);
+                new_gcode += m_gcodegen.writer().set_additional_fan(m_additional_fan_speed);
         }
     };
 
