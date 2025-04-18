@@ -895,7 +895,7 @@ std::string GCodeWriter::set_additional_fan(unsigned int speed)
 {
     std::ostringstream gcode;
 
-    if (FLAVOR_IS(gcfKlipper, *this))
+    if (FLAVOR_IS(gcfKlipper))
         gcode << "SET_FAN_SPEED FAN=overhang_cool_fan SPEED=" << (double)(speed / 100.0);
     else
         gcode << "M106 " << "P2 " << "S" << (int)(255.0 * speed / 100.0);
@@ -912,7 +912,7 @@ std::string GCodeWriter::set_additional_fan(unsigned int speed)
 std::string GCodeWriter::set_exhaust_fan( int speed,bool add_eol)
 {
     std::ostringstream gcode;
-    if (FLAVOR_IS(gcfKlipper, *this))
+    if (FLAVOR_IS(gcfKlipper))
         gcode << "SET_FAN_SPEED FAN=carbon_filter SPEED=" << (double)(speed / 100.0);
     else
         gcode << "M106" << " P3" << " S" << (int)(speed / 100.0 * 255);
