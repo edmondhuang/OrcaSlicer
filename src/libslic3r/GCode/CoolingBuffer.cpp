@@ -18,7 +18,8 @@
 
 namespace Slic3r {
 
-CoolingBuffer::CoolingBuffer(GCode &gcodegen) : m_config(gcodegen.config()), m_toolchange_prefix(gcodegen.writer().toolchange_prefix()), m_current_extruder(0)
+//CoolingBuffer::CoolingBuffer(GCode &gcodegen) : m_config(gcodegen.config()), m_toolchange_prefix(gcodegen.writer().toolchange_prefix()), m_current_extruder(0)
+CoolingBuffer::CoolingBuffer(GCode &gcodegen) : m_gcodegen(gcodegen), m_config(gcodegen.config()), m_toolchange_prefix(gcodegen.writer().toolchange_prefix()), m_current_extruder(0)
 {
     this->reset(gcodegen.writer().get_position());
 
@@ -809,8 +810,10 @@ std::string CoolingBuffer::apply_layer_cooldown(
         //BBS
         if (additional_fan_speed_new != m_additional_fan_speed) {
             m_additional_fan_speed = additional_fan_speed_new;
+//            if (immediately_apply && m_config.auxiliary_fan.value)
+//                new_gcode += gcodegen.writer().set_additional_fan(m_additional_fan_speed);
             if (immediately_apply && m_config.auxiliary_fan.value)
-                new_gcode += gcodegen.writer().set_additional_fan(m_additional_fan_speed);
+                new_gcode += GCodeWriter.writer().set_additional_fan(m_additional_fan_speed);
         }
     };
 
@@ -888,8 +891,10 @@ std::string CoolingBuffer::apply_layer_cooldown(
                 fan_speed_change_requests[CoolingLine::TYPE_FORCE_RESUME_FAN] = true;
                 need_set_fan = true;
             }
+//            if (m_additional_fan_speed != -1 && m_config.auxiliary_fan.value)
+//                new_gcode += GCodeWriter.writer().set_additional_fan(m_additional_fan_speed);
             if (m_additional_fan_speed != -1 && m_config.auxiliary_fan.value)
-                new_gcode += gcodegen.writer().set_additional_fan(m_additional_fan_speed);
+                new_gcode += m_gcodegen.writer().set_additional_fan(m_additional_fan_speed);
         }
         else if (line->type & CoolingLine::TYPE_EXTRUDE_END) {
             // Just remove this comment.
