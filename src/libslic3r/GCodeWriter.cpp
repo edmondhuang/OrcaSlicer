@@ -11,8 +11,8 @@
     #include <boost/spirit/include/karma.hpp>
 #endif
 
-#define FLAVOR_IS(val, writer) (writer.config.gcode_flavor == val)
-#define FLAVOR_IS_NOT(val, writer) (writer.config.gcode_flavor != val)
+#define FLAVOR_IS(val) this->config.gcode_flavor == val
+#define FLAVOR_IS_NOT(val) this->config.gcode_flavor != val
 
 namespace Slic3r {
 
