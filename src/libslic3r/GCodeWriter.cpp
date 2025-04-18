@@ -193,11 +193,23 @@ std::string GCodeWriter::set_chamber_temperature(int temperature, bool wait)
     {
         // Orca: should we let the M191 command to turn on the auxiliary fan?
         if (config.auxiliary_fan)
-            gcode << "M106 P2 S255 \n";
-        gcode << "M191 S" << std::to_string(temperature) << " ;"
-              << "set chamber_temperature and wait for it to be reached\n";
+            if (FLAVOR_IS(gcfKlipper))
+                gcode << "SET_FAN_SPEED FAN=overhang_cool_fan SPEED=1\n";
+            else
+                gcode << "M106 P2 S255 \n";
+        if (FLAVOR_IS(gcfKlipper)) {
+            gcode << "SET_HEATER_TEMPERATURE HEATER=chamber TARGET=" << std::to_string(temperature) << " ;"
+                  << "set chamber_temperature\n";
+            gcode << "TEMPERATURE_WAIT SENSOR=heater_bed MINIMUM=" << std::to_string(temperature) << " MAXIMUM=80 ;"
+                  << "set chamber_temperature and wait for it to be reached\n";
+        } else
+            gcode << "M191 S" << std::to_string(temperature) << " ;"
+                  << "set chamber_temperature and wait for it to be reached\n";
         if (config.auxiliary_fan)
-            gcode << "M106 P2 S0 \n";
+            if (FLAVOR_IS(gcfKlipper))
+                gcode << "SET_FAN_SPEED FAN=overhang_cool_fan SPEED=0\n";
+            else
+                gcode << "M106 P2 S0 \n";
     }
     else {
         code = "M141";
@@ -883,7 +895,10 @@ std::string GCodeWriter::set_additional_fan(unsigned int speed)
 {
     std::ostringstream gcode;
 
-    gcode << "M106 " << "P2 " << "S" << (int)(255.0 * speed / 100.0);
+    if (FLAVOR_IS(gcfKlipper))
+        gcode << "SET_FAN_SPEED FAN=overhang_cool_fan SPEED=" << (double)(speed / 100.0);
+    else
+        gcode << "M106 " << "P2 " << "S" << (int)(255.0 * speed / 100.0);
     if (GCodeWriter::full_gcode_comment) {
         if (speed == 0)
             gcode << " ; disable additional fan ";
@@ -897,7 +912,10 @@ std::string GCodeWriter::set_additional_fan(unsigned int speed)
 std::string GCodeWriter::set_exhaust_fan( int speed,bool add_eol)
 {
     std::ostringstream gcode;
-    gcode << "M106" << " P3" << " S" << (int)(speed / 100.0 * 255);
+    if (FLAVOR_IS(gcfKlipper))
+        gcode << "SET_FAN_SPEED FAN=carbon_filter SPEED=" << (double)(speed / 100.0);
+    else
+        gcode << "M106" << " P3" << " S" << (int)(speed / 100.0 * 255);
 
     if(add_eol)
         gcode << "\n";
