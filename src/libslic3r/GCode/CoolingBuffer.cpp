@@ -810,7 +810,7 @@ std::string CoolingBuffer::apply_layer_cooldown(
         if (additional_fan_speed_new != m_additional_fan_speed) {
             m_additional_fan_speed = additional_fan_speed_new;
             if (immediately_apply && m_config.auxiliary_fan.value)
-                new_gcode += GCodeWriter::set_additional_fan(m_additional_fan_speed);
+                new_gcode += gcodegen.writer().set_additional_fan(m_additional_fan_speed);
         }
     };
 
@@ -889,7 +889,7 @@ std::string CoolingBuffer::apply_layer_cooldown(
                 need_set_fan = true;
             }
             if (m_additional_fan_speed != -1 && m_config.auxiliary_fan.value)
-                new_gcode += GCodeWriter::set_additional_fan(m_additional_fan_speed);
+                new_gcode += gcodegen.writer().set_additional_fan(m_additional_fan_speed);
         }
         else if (line->type & CoolingLine::TYPE_EXTRUDE_END) {
             // Just remove this comment.
