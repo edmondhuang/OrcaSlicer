@@ -19,7 +19,7 @@
 namespace Slic3r {
 
 //CoolingBuffer::CoolingBuffer(GCode &gcodegen) : m_config(gcodegen.config()), m_toolchange_prefix(gcodegen.writer().toolchange_prefix()), m_current_extruder(0)
-CoolingBuffer::CoolingBuffer(GCode &gcodegen) : m_config(gcodegen.config()), m_toolchange_prefix(gcodegen.writer().toolchange_prefix()), m_current_extruder(0), m_num_extruders(0)
+CoolingBuffer::CoolingBuffer(GCode &gcodegen) : m_gcodegen(gcodegen), m_config(gcodegen.config()), m_toolchange_prefix(gcodegen.writer().toolchange_prefix()), m_current_extruder(0), m_num_extruders(0)
 {
     this->reset(gcodegen.writer().get_position());
 
