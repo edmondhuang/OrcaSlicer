@@ -28,6 +28,7 @@ public:
     std::string process_layer(std::string &&gcode, size_t layer_id, bool flush);
 
 private:
+    GCode&              m_gcodegen;
 	CoolingBuffer& operator=(const CoolingBuffer&) = delete;
     std::vector<PerExtruderAdjustments> parse_layer_gcode(const std::string &gcode, std::vector<float> &current_pos) const;
     float       calculate_layer_slowdown(std::vector<PerExtruderAdjustments> &per_extruder_adjustments);
