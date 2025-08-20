@@ -4660,11 +4660,9 @@ void GCodeProcessor::run_post_process()
                                 if (static_cast<int>(val) == tool_number)
                                     return std::string("; removed M104\n");
                             }
-                        }
-                        return line;
                     }
-                );
-            }
+                    return line;
+                });
         }
     };
 
