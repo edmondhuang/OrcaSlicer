@@ -21,7 +21,7 @@ public:
         m_single_extruder_multi_material(false),
         m_last_acceleration(0), m_max_acceleration(0),m_last_travel_acceleration(0), m_max_travel_acceleration(0),
         m_last_jerk(0), m_max_jerk_x(0), m_max_jerk_y(0),
-        m_last_bed_temperature(0), m_last_bed_temperature_reached(true),
+        /*m_last_bed_temperature(0), */m_last_bed_temperature_reached(true),
         m_lifted(0),
         m_to_lift(0),
         m_to_lift_type(LiftType::NormalLift),
@@ -97,8 +97,8 @@ public:
     // Keeping the state is left to the CoolingBuffer, which runs asynchronously on another thread.
     std::string set_fan(unsigned int speed) const;
     //BBS: set additional fan speed for BBS machine only
-    static std::string set_additional_fan(unsigned int speed);
-    static std::string set_exhaust_fan(int speed,bool add_eol);
+    std::string set_additional_fan(unsigned int speed);
+    std::string set_exhaust_fan(int speed,bool add_eol);
     //BBS
     void set_object_start_str(std::string start_string) { m_gcode_label_objects_start = start_string; }
     bool is_object_start_str_empty() { return m_gcode_label_objects_start.empty(); }
@@ -146,7 +146,7 @@ public:
 
     //BBS
     unsigned int    m_last_additional_fan_speed;
-    int             m_last_bed_temperature;
+    int             m_last_bed_temperature = -1; //Edmond
     bool            m_last_bed_temperature_reached;
     double          m_lifted;
 
